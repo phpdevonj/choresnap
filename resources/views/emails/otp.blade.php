@@ -28,17 +28,14 @@
                 <!-- Content -->
                 <tr>
                     <td style="padding:28px 22px; text-align:center;">
-
                         <!-- Title -->
-                        <div
-                            style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:700; color:#0B2B2B;">
-                            Verify your email
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:700; color:#0B2B2B;">
+                            {{__('messages.verify_email')}}
                         </div>
 
                         <!-- Instruction -->
-                        <div
-                            style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#1F2D2D; margin-top:12px; line-height:1.6;">
-                            Enter the verification code below in the app to verify your email address.
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#1F2D2D; margin-top:12px; line-height:1.6;">
+                            {{__('messages.verify_email_text')}}
                         </div>
 
                         <!-- OTP Code -->
@@ -51,15 +48,13 @@
 
                         <!-- Expiry -->
                         <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#5F7C7C;">
-                            This code is valid for a limited time.
+                            {{__('messages.code_validity_message')}}
                         </div>
 
                         <!-- Security Notice -->
-                        <div
-                            style="margin-top:20px; font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#5F7C7C; line-height:1.6;">
-                            If you did not request this code, you can safely ignore this email.
+                        <div style="margin-top:20px; font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#5F7C7C; line-height:1.6;">
+                            {{__('messages.ignore_if_not_requested')}}
                         </div>
-
                     </td>
                 </tr>
 

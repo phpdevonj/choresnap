@@ -32,48 +32,40 @@
                     <td style="padding:28px 22px;">
 
                         <!-- Title -->
-                        <div
-                            style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:700; color:#0B2B2B;">
-                            Reset your password
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:700; color:#0B2B2B;">
+                            {{__('messages.reset_password_title')}}
                         </div>
 
                         <!-- Message -->
-                        <div
-                            style="font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:1.6; color:#1F2D2D; margin-top:12px;">
-                            We received a request to reset your password for your ChoreSnap account.
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:1.6; color:#1F2D2D; margin-top:12px;">
+                            {{__('messages.password_reset_request_message')}}
                         </div>
 
                         <!-- CTA -->
                         <div style="margin-top:22px; margin-bottom:22px; text-align:center;">
-                            <a href="{{ $link  }}"
-                               style="display:inline-block; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:800; text-decoration:none; background-color:#038D8D; color:#FFFFFF; padding:14px 24px; border-radius:12px;">
-                                Reset password
+                            <a href="{{ $link  }}" style="display:inline-block; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:800; text-decoration:none; background-color:#038D8D; color:#FFFFFF; padding:14px 24px; border-radius:12px;">
+                                {{__('messages.reset_password')}}
                             </a>
                         </div>
 
                         <!-- Expiry -->
                         <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#5F7C7C;">
-                            This link will expire in <strong>60 minutes</strong>.
+                            {{__('messages.link_expiry_message')}}
                         </div>
 
                         <!-- Security Notice -->
-                        <div
-                            style="margin-top:18px; background-color:#EAF7F7; border:1px solid #CFEAEA; padding:14px; border-radius:10px;">
-                            <div
-                                style="font-family:Arial,Helvetica,sans-serif; font-size:14px; font-weight:700; color:#0B2B2B;">
-                                Security notice
+                        <div style="margin-top:18px; background-color:#EAF7F7; border:1px solid #CFEAEA; padding:14px; border-radius:10px;">
+                            <div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; font-weight:700; color:#0B2B2B;">
+                                {{__('messages.security_notice')}}
                             </div>
-                            <div
-                                style="font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:1.6; color:#1F2D2D; margin-top:6px;">
-                                If you did not request a password reset, you can safely ignore this email. Your account
-                                remains secure.
+                            <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:1.6; color:#1F2D2D; margin-top:6px;">
+                                {{__('messages.password_reset_security_notice')}}
                             </div>
                         </div>
 
                         <!-- Fallback Link -->
-                        <div
-                            style="margin-top:18px; font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#7A8F8F; line-height:1.5;">
-                            If the button above does not work, copy and paste the following link into your browser:
+                        <div style="margin-top:18px; font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#7A8F8F; line-height:1.5;">
+                            {{__('messages.fallback_link_message')}}
                             <br><br>
                             <a href="{{ $link }}" style="color:#038D8D; word-break:break-all;">
                                 {{ $link }}

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification</title>
+    <title>{{__('messages.email_verification')}}</title>
 </head>
 <body>
-    <p>Thank you for registering. Please verify your email by clicking the button below:</p>
-    <a href="{{ $verificationLink }}" class="text-decoration-underline">Verify Email</a>
+    <p>{{__('messages.email_verification_message')}}</p>
+    <a href="{{ $verificationLink }}" class="text-decoration-underline">{{__('messages.verify_email')}}</a>
 </body>
 </html>
