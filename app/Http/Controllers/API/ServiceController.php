@@ -425,7 +425,7 @@ class ServiceController extends Controller {
         $bookings = Booking::select('date', 'duration_diff')
             ->where(['provider_id' => $providerId])
             ->whereBetween('date', [$startDate, $endDate])
-            ->where('status', '!=', 'cancelled')
+            ->whereNotIn('status', ['cancelled', 'rejected'])
             ->get();
 
         return comman_message_response(['data' => $bookings]);
