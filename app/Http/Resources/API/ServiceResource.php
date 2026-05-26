@@ -35,9 +35,9 @@ class ServiceResource extends JsonResource
 
         // ✅ Subcategory Translation
         $subcategoryKey = Str::slug(optional($this->subcategory)->name, '_');
-        $subcategoryName = __('categorylang.' . $subcategoryKey);
+        $subcategoryName = __('subcategorylang.' . $subcategoryKey);
 
-        if ($subcategoryName === 'categorylang.' . $subcategoryKey) {
+        if ($subcategoryName === 'subcategorylang.' . $subcategoryKey) {
             $subcategoryName = optional($this->subcategory)->name;
         }
 
