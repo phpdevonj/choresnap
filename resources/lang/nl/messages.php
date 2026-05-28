@@ -836,4 +836,9 @@
   'email_verification_message' => 'Bedankt voor je registratie. Verifieer je e-mailadres door op de onderstaande knop te klikken:',
   'payment_message_status_message' => 'Betaling verzonden voor :booking_services_name aan :provider_name',
   'payment_message_status_provider_message' => 'Betaling ontvangen voor :booking_services_name van :customer_name',
+  'rejecte_booking' => 'Boeking Afgewezen',
+  'rejecte_booking_message' => ':provider_name heeft je :booking_services_name afgewezen.',
+  'rejecte_booking_provider_message' => 'Je hebt :booking_services_name voor :customer_name afgewezen.',
+  'cancel_booking_message' => 'Je hebt :booking_services_name bij :provider_name geannuleerd.',
+  'cancel_booking_provider_message' => ':customer_name heeft je :booking_services_name geannuleerd.',
 );

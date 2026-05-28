@@ -835,4 +835,9 @@
   'email_verification_message' => 'Thank you for registering. Please verify your email by clicking the button below:',
   'payment_message_status_message' => 'Payment sent for :booking_services_name to :provider_name',
   'payment_message_status_provider_message' => 'Payment received for :booking_services_name from :customer_name',
+  'rejecte_booking' => 'Booking Declined',
+  'rejecte_booking_message' => ':provider_name declined your :booking_services_name',
+  'rejecte_booking_provider_message' => 'You declined :booking_services_name for :customer_name',
+  'cancel_booking_message' => 'You cancelled :booking_services_name with :provider_name',
+  'cancel_booking_provider_message' => ':customer_name cancelled your :booking_services_name',
 );

@@ -180,15 +180,29 @@ trait NotificationTrait {
                 break;
 
             case "cancel_booking":
+//                $status = \App\Models\BookingStatus::bookingStatus($booking->status);
+//                $old_status = \App\Models\BookingStatus::bookingStatus($booking->old_status);
+//                $data['activity_type'] = __('messages.cancel_booking');
+//                $data['activity_message'] = __('messages.cancel_booking');
+//                $handymanId = $booking->handymanAdded ? $booking->handymanAdded->pluck('handyman_id') : null;
+//                $activity_data = [
+//                    'reason' => $booking->reason,
+//                    'status' => $booking->status,
+//                    'status_label' => \App\Models\BookingStatus::bookingStatus($booking->status),
+//                ];
+                $provider_name = isset($booking->provider) ? $booking->provider->display_name : '';
+                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
                 $status = \App\Models\BookingStatus::bookingStatus($booking->status);
                 $old_status = \App\Models\BookingStatus::bookingStatus($booking->old_status);
                 $data['activity_type'] = __('messages.cancel_booking');
-                $data['activity_message'] = __('messages.cancel_booking');
+                $data['activity_message'] = __('messages.cancel_booking_message', ['booking_services_name' => $booking_services_name,'provider_name' => $provider_name]);
                 $handymanId = $booking->handymanAdded ? $booking->handymanAdded->pluck('handyman_id') : null;
                 $activity_data = [
                     'reason' => $booking->reason,
                     'status' => $booking->status,
                     'status_label' => \App\Models\BookingStatus::bookingStatus($booking->status),
+                    'booking_services_name' => $booking_services_name,
+                    'provider_name' => $provider_name,
                 ];
                 break;
 
@@ -398,18 +412,49 @@ trait NotificationTrait {
                 break;
 
             case "rejecte_booking":
-                $activity_data = [];
-                $data['activity_message'] = __('messages.rejecte_booking');
+//                $activity_data = [];
+//                $data['activity_message'] = __('messages.rejecte_booking');
+                $provider_name = isset($booking->provider) ? $booking->provider->display_name : '';
+                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
+                $data['activity_type'] = __('messages.rejecte_booking');
+                $data['activity_message'] = __('messages.rejecte_booking_message', ['booking_services_name' => $booking_services_name,'provider_name' => $provider_name]);
+                $activity_data = [
+                    'activity_type' => $data['activity_type'],
+                    'activity_message' => $data['activity_message'],
+                    'booking_id' => $data['booking_id'],
+                    'booking_services_name' => $booking_services_name,
+                    'provider_name' => $provider_name,
+                ];
                 break;
 
             case "rejecte_booking_provider":
-                $activity_data = [];
-                $data['activity_message'] = __('messages.rejecte_booking_provider');
+//                $activity_data = [];
+//                $data['activity_message'] = __('messages.rejecte_booking_provider');
+                $customer_name = isset($booking->customer) ? $booking->customer->display_name : '';
+                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
+                $data['activity_type'] = __('messages.rejecte_booking');
+                $data['activity_message'] = __('messages.rejecte_booking_provider_message', ['booking_services_name' => $booking_services_name,'customer_name' => $customer_name]);
+                $activity_data = [
+                    'activity_type' => $data['activity_type'],
+                    'activity_message' => $data['activity_message'],
+                    'booking_id' => $data['booking_id'],
+                    'booking_services_name' => $booking_services_name,
+                    'customer_name' => $customer_name,
+                ];
                 break;
 
             case "cancel_booking_provider":
-                $activity_data = [];
-                $data['activity_message'] = __('messages.cancel_booking_provider');
+//                $activity_data = [];
+//                $data['activity_message'] = __('messages.cancel_booking_provider');
+                $customer_name = isset($booking->customer) ? $booking->customer->display_name : '';
+                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
+                $data['activity_type'] = __('messages.cancel_booking');
+                $data['activity_message'] = __('messages.cancel_booking_provider_message', ['booking_services_name' => $booking_services_name,'customer_name' => $customer_name]);
+                $handymanId = $booking->handymanAdded ? $booking->handymanAdded->pluck('handyman_id') : null;
+                $activity_data = [
+                    'booking_services_name' => $booking_services_name,
+                    'customer_name' => $customer_name,
+                ];
                 break;
 
 
