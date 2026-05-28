@@ -208,8 +208,8 @@ trait NotificationTrait {
                     'activity_type' => $data['activity_type'],
                     'payment_status' => $data['payment_status'],
                     'booking_id' => $data['booking_id'],
-                    'booking_services_name' => $data['booking_services_name'],
-                    'provider_name' => $data['provider_name'],
+                    'booking_services_name' => $booking_services_name,
+                    'provider_name' => $provider_name,
                 ];
                 break;
 
@@ -225,8 +225,8 @@ trait NotificationTrait {
                     'activity_type' => $data['activity_type'],
                     'payment_status' => $data['payment_status'],
                     'booking_id' => $data['booking_id'],
-                    'booking_services_name' => $data['booking_services_name'],
-                    'customer_name' => $data['customer_name'],
+                    'booking_services_name' => $booking_services_name,
+                    'customer_name' => $customer_name,
                 ];
                 break;
 
