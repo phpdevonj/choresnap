@@ -167,7 +167,10 @@ trait NotificationTrait {
                 $status = \App\Models\BookingStatus::bookingStatus($booking->status);
                 $old_status = \App\Models\BookingStatus::bookingStatus($booking->old_status);
                 $data['activity_type'] = __('messages.update_booking_status');
-                $data['activity_message'] = __('messages.booking_status_update', ['id' => $booking->id, 'from' => $old_status, 'to' => $status]);
+//                $data['activity_message'] = __('messages.booking_status_update', ['id' => $booking->id, 'from' => $old_status, 'to' => $status]);
+                $customer_name = $booking->customer->display_name;
+                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
+                $data['activity_message'] = __('messages.booking_status_update_message', ['id' => $booking->id, 'from' => $old_status, 'to' => $status, 'booking_services_name' => $booking_services_name, 'customer_name' => $customer_name]);
                 $handymanId = $booking->handymanAdded ? $booking->handymanAdded->pluck('handyman_id') : null;
                 $activity_data = [
                     'reason' => $booking->reason,
@@ -175,6 +178,8 @@ trait NotificationTrait {
                     'status_label' => $status,
                     'old_status' => $booking->old_status,
                     'old_status_label' => $old_status,
+                    'booking_services_name' => $booking_services_name,
+                    'customer_name' => $customer_name,
                 ];
 
                 break;

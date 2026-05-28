@@ -840,4 +840,5 @@
   'rejecte_booking_provider_message' => 'You declined :booking_services_name for :customer_name',
   'cancel_booking_message' => 'You cancelled :booking_services_name with :provider_name',
   'cancel_booking_provider_message' => ':customer_name cancelled your :booking_services_name',
+  'booking_status_update_message' => 'Status updated: :booking_services_name for :customer_name is now :to',
 );
