@@ -16,3 +16,5 @@ yarn-error.log
 /.idea
 /nbproject/private/
 /nbproject/
+*.json
+choresnap-83bea-firebase-adminsdk-fbsvc-6a45deb36d.json
