@@ -48,21 +48,9 @@ trait NotificationTrait {
 
         switch ($data['activity_type']) {
             case "add_booking":
-//                $customer_name = $booking->customer->display_name;
-//
-//                $data['activity_message'] = __('messages.booking_added', ['name' => $customer_name]);
-//                $data['activity_type'] = __('messages.add_booking');
-//                $activity_data = [
-//                    'service_id' => $booking->service_id,
-//                    'service_name' => isset($booking->service) ? $booking->service->name : '',
-//                    'customer_id' => $booking->customer_id,
-//                    'customer_name' => isset($booking->customer) ? $booking->customer->display_name : '',
-//                    'provider_id' => $booking->provider_id,
-//                    'provider_name' => isset($booking->provider) ? $booking->provider->display_name : '',
-//                ];
-                $provider_name = isset($booking->provider) ? $booking->provider->display_name : '';
-                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
-                $data['activity_message'] = __('messages.booking_added', ['booking_services_name' => $booking_services_name, 'provider_name' => $provider_name]);
+                $customer_name = $booking->customer->display_name;
+
+                $data['activity_message'] = __('messages.booking_added', ['name' => $customer_name]);
                 $data['activity_type'] = __('messages.add_booking');
                 $activity_data = [
                     'service_id' => $booking->service_id,
@@ -75,21 +63,9 @@ trait NotificationTrait {
                 break;
 
             case "add_booking_provider":
-//                $customer_name = $booking->customer->display_name;
-//
-//                $data['activity_message'] = __('messages.booking_added', ['name' => $customer_name]);
-//                $data['activity_type'] = __('messages.add_booking_provider');
-//                $activity_data = [
-//                    'service_id' => $booking->service_id,
-//                    'service_name' => isset($booking->service) ? $booking->service->name : '',
-//                    'customer_id' => $booking->customer_id,
-//                    'customer_name' => isset($booking->customer) ? $booking->customer->display_name : '',
-//                    'provider_id' => $booking->provider_id,
-//                    'provider_name' => isset($booking->provider) ? $booking->provider->display_name : '',
-//                ];
                 $customer_name = $booking->customer->display_name;
-                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
-                $data['activity_message'] = __('messages.booking_added_provider', ['booking_services_name' => $booking_services_name, 'customer_name' => $customer_name]);
+
+                $data['activity_message'] = __('messages.booking_added', ['name' => $customer_name]);
                 $data['activity_type'] = __('messages.add_booking_provider');
                 $activity_data = [
                     'service_id' => $booking->service_id,
@@ -102,51 +78,27 @@ trait NotificationTrait {
                 break;
 
             case "assigned_booking":
-//                $assigned_handyman = handymanNames($booking->handymanAdded);
-//                $data['activity_message'] = __('messages.booking_assigned', ['name' => $assigned_handyman, 'id' => $booking->id]);
-//                $data['activity_type'] = __('messages.assigned_booking');
-//                $handymanId = $booking->handymanAdded->pluck('handyman_id');
-//
-//                $activity_data = [
-//                    'handyman_id' => $booking->handymanAdded->pluck('handyman_id'),
-//                    'handyman_name' => $booking->handymanAdded,
-//                ];
-                $provider_name = isset($booking->provider) ? $booking->provider->display_name : '';
-                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
-                $data['activity_message'] = __('messages.booking_assigned', ['provider_name' => $provider_name, 'booking_services_name' => $booking_services_name]);
+                $assigned_handyman = handymanNames($booking->handymanAdded);
+                $data['activity_message'] = __('messages.booking_assigned', ['name' => $assigned_handyman, 'id' => $booking->id]);
                 $data['activity_type'] = __('messages.assigned_booking');
                 $handymanId = $booking->handymanAdded->pluck('handyman_id');
 
                 $activity_data = [
                     'handyman_id' => $booking->handymanAdded->pluck('handyman_id'),
                     'handyman_name' => $booking->handymanAdded,
-                    'provider_name' => $provider_name,
-                    'booking_services_name' => $booking_services_name,
                 ];
 
                 break;
 
             case "assigned_booking_provider":
-//                $assigned_handyman = handymanNames($booking->handymanAdded);
-//                $data['activity_message'] = __('messages.booking_assigned', ['name' => $assigned_handyman, 'id' => $booking->id]);
-//                $data['activity_type'] = __('messages.assigned_booking_provider');
-//                $handymanId = $booking->handymanAdded->pluck('handyman_id');
-//
-//                $activity_data = [
-//                    'handyman_id' => $booking->handymanAdded->pluck('handyman_id'),
-//                    'handyman_name' => $booking->handymanAdded,
-//                ];
-                $customer_name = $booking->customer->display_name;
-                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
-                $data['activity_message'] = __('messages.booking_assigned_provider', ['customer_name' => $customer_name, 'booking_services_name' => $booking_services_name]);
+                $assigned_handyman = handymanNames($booking->handymanAdded);
+                $data['activity_message'] = __('messages.booking_assigned', ['name' => $assigned_handyman, 'id' => $booking->id]);
                 $data['activity_type'] = __('messages.assigned_booking_provider');
                 $handymanId = $booking->handymanAdded->pluck('handyman_id');
 
                 $activity_data = [
                     'handyman_id' => $booking->handymanAdded->pluck('handyman_id'),
                     'handyman_name' => $booking->handymanAdded,
-                    'customer_name' => $customer_name,
-                    'booking_services_name' => $booking_services_name,
                 ];
 
                 break;
@@ -193,40 +145,26 @@ trait NotificationTrait {
                 break;
 
             case "payment_message_status":
-//                $data['activity_type'] = __('messages.payment_message_status');
-//                $data['activity_message'] = __('messages.payment_message', ['status' => $data['payment_status']]);
-//                $activity_data = [
-//                    'activity_type' => $data['activity_type'],
-//                    'payment_status' => $data['payment_status'],
-//                    'booking_id' => $data['booking_id'],
-//                ];
-                $provider_name = isset($booking->provider) ? $booking->provider->display_name : '';
-                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
-                $data['activity_type'] = __('messages.payment_message', ['status' => $data['payment_status']]);
-                $data['activity_message'] = __('messages.payment_message_status_message', ['booking_services_name' => $booking_services_name,'provider_name' => $provider_name]);
+                $data['activity_type'] = __('messages.payment_message_status');
+
+                $data['activity_message'] = __('messages.payment_message', ['status' => $data['payment_status']]);
+
                 $activity_data = [
                     'activity_type' => $data['activity_type'],
                     'payment_status' => $data['payment_status'],
                     'booking_id' => $data['booking_id'],
-                    'booking_services_name' => $data['booking_services_name'],
-                    'provider_name' => $data['provider_name'],
                 ];
                 break;
 
             case "payment_message_status_provider":
-//                $data['activity_type'] = __('messages.payment_message_status_provider');
-//                $data['activity_message'] = __('messages.payment_message', ['status' => $data['payment_status']]);
-                $customer_name = isset($booking->customer) ? $booking->customer->display_name : '';
-                $booking_services_name = isset($booking->service) ? $booking->service->name : '';
-                $data['activity_type'] = __('messages.payment_message', ['status' => $data['payment_status']]);
-                $data['activity_message'] = __('messages.payment_message_status_provider_message', ['booking_services_name' => $booking_services_name,'customer_name' => $customer_name]);
+                $data['activity_type'] = __('messages.payment_message_status_provider');
+
+                $data['activity_message'] = __('messages.payment_message', ['status' => $data['payment_status']]);
 
                 $activity_data = [
                     'activity_type' => $data['activity_type'],
                     'payment_status' => $data['payment_status'],
                     'booking_id' => $data['booking_id'],
-                    'booking_services_name' => $data['booking_services_name'],
-                    'customer_name' => $data['customer_name'],
                 ];
                 break;
 
