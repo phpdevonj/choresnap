@@ -7,7 +7,7 @@ use Google\Client;
 class GoogleFcm {
 
 
-    private static string $googleServiceJson = 'choresnap-83bea-firebase-adminsdk-fbsvc-ec023624c4.json';
+    private static string $googleServiceJson = 'choresnap-83bea-firebase-adminsdk-fbsvc-3ba2cfd1e4.json';
 
     private static function readServiceFile(): array {
         $fileContent = file_get_contents(base_path(self::$googleServiceJson));
@@ -15,7 +15,7 @@ class GoogleFcm {
     }
 
     private static function getToken() {
-        $serviceJsonPath = self::readServiceFile();
+        $serviceJsonPath = base_path(self::$googleServiceJson);
 
         $client = new Client();
         try {
