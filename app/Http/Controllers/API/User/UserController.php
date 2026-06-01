@@ -455,7 +455,12 @@ class UserController extends Controller {
                     // Mail failure fallback
                 }
 
-                return comman_message_response(__('auth.email_not_verified'), 403);
+//                return comman_message_response(__('auth.email_not_verified'), 403);
+                return response()->json([
+                                'status' => false,
+                                'code' => 'EMAIL_NOT_VERIFIED',
+                                'message' => __('auth.email_not_verified')
+                                    ], 403);
             }
         } else {
             // Check if this user exists under another role
@@ -477,7 +482,12 @@ class UserController extends Controller {
                         // Mail failure fallback
                     }
 
-                    return comman_message_response(__('auth.email_not_verified'), 403);
+//                    return comman_message_response(__('auth.email_not_verified'), 403);
+                    return response()->json([
+                                'status' => false,
+                                'code' => 'EMAIL_NOT_VERIFIED',
+                                'message' => __('auth.email_not_verified')
+                                    ], 403);
                 }
 
 
@@ -535,7 +545,12 @@ class UserController extends Controller {
                         // Mail failure fallback
                     }
 
-                    return comman_message_response(__('auth.email_not_verified'), 403);
+//                    return comman_message_response(__('auth.email_not_verified'), 403);
+                    return response()->json([
+                                'status' => false,
+                                'code' => 'EMAIL_NOT_VERIFIED',
+                                'message' => __('auth.email_not_verified')
+                                    ], 403);
                 }
 
                 // Token & response
