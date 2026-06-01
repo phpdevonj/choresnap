@@ -460,7 +460,7 @@ class UserController extends Controller {
                                 'status' => false,
                                 'code' => 'EMAIL_NOT_VERIFIED',
                                 'message' => __('auth.email_not_verified')
-                                    ], 403);
+                                    ], 405);
             }
         } else {
             // Check if this user exists under another role
@@ -487,7 +487,7 @@ class UserController extends Controller {
                                 'status' => false,
                                 'code' => 'EMAIL_NOT_VERIFIED',
                                 'message' => __('auth.email_not_verified')
-                                    ], 403);
+                                    ], 405);
                 }
 
 
@@ -550,7 +550,7 @@ class UserController extends Controller {
                                 'status' => false,
                                 'code' => 'EMAIL_NOT_VERIFIED',
                                 'message' => __('auth.email_not_verified')
-                                    ], 403);
+                                    ], 405);
                 }
 
                 // Token & response
