@@ -444,22 +444,13 @@ class UserController extends Controller {
             if ($user->is_email_verified != 1) {
                 Auth::logout();
 
-                /*// Generate and send OTP
+                // Generate and send OTP
                 $otp = rand(1000, 9999);
                 $user->otp = $otp;
                 $user->save();
 
                 try {
                     \Mail::to($user->email)->send(new OtpMail($otp));
-                } catch (\Exception $e) {
-                    // Mail failure fallback
-                }*/
-                $verificationLink = route('verify', ['id' => $user->id]);
-
-                try {
-                    \Mail::to($user->email)->send(
-                            new VerificationEmail($verificationLink)
-                    );
                 } catch (\Exception $e) {
                     // Mail failure fallback
                 }
@@ -476,7 +467,7 @@ class UserController extends Controller {
                 // Block if email not verified
                 if ($existingOtherUser->is_email_verified != 1) {
                     // Generate and send OTP
-                    /*$otp = rand(1000, 9999);
+                    $otp = rand(1000, 9999);
                     $existingOtherUser->otp = $otp;
                     $existingOtherUser->save();
 
@@ -484,15 +475,8 @@ class UserController extends Controller {
                         \Mail::to($existingOtherUser->email)->send(new OtpMail($otp));
                     } catch (\Exception $e) {
                         // Mail failure fallback
-                    }*/
-                    $verificationLink = route('verify', ['id' => $existingOtherUser->id]);
-                    try {
-                        \Mail::to($existingOtherUser->email)->send(
-                            new VerificationEmail($verificationLink)
-                        );
-                    } catch (\Exception $e) {
-                        // Mail failure fallback
                     }
+
                     return comman_message_response(__('auth.email_not_verified'), 403);
                 }
 
@@ -541,7 +525,7 @@ class UserController extends Controller {
                 // Check if email is verified for new user
                 if ($newUser->is_email_verified != 1) {
                     // Generate and send OTP
-                    /*$otp = rand(1000, 9999);
+                    $otp = rand(1000, 9999);
                     $newUser->otp = $otp;
                     $newUser->save();
 
@@ -549,14 +533,6 @@ class UserController extends Controller {
                         \Mail::to($newUser->email)->send(new OtpMail($otp));
                     } catch (\Exception $e) {
                         // Mail failure fallback
-                    }*/
-                    $verificationLink = route('verify', ['id' => $newUser->id]);
-                    try {
-                        \Mail::to($newUser->email)->send(
-                            new VerificationEmail($verificationLink)
-                        );
-                    } catch (\Exception $e) {
-                            // Mail failure fallback
                     }
 
                     return comman_message_response(__('auth.email_not_verified'), 403);
