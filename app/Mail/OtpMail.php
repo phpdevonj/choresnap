@@ -30,7 +30,8 @@ class OtpMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Uw ChoreSnap-verificatiecode 🔐')
+        $subject = __('messages.subject_otp_email');
+        return $this->subject($subject)
                     ->view('emails.otp')
                     ->with(['otp' => $this->otp]);
     }

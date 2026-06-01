@@ -842,4 +842,5 @@
   'cancel_booking_message' => 'Je hebt :booking_services_name bij :provider_name geannuleerd.',
   'cancel_booking_provider_message' => ':customer_name heeft je :booking_services_name geannuleerd.',
   'booking_status_update_message' => 'Status bijgewerkt: :booking_services_name voor :customer_name is nu :to',
+  'subject_otp_email' => 'Uw ChoreSnap-verificatiecode 🔐',
 );

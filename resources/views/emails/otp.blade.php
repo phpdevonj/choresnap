@@ -30,12 +30,12 @@
                     <td style="padding:28px 22px; text-align:center;">
                         <!-- Title -->
                         <div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:700; color:#0B2B2B;">
-                            Verifieer je e-mailadres
+                            {{__('messages.verify_email')}}
                         </div>
 
                         <!-- Instruction -->
                         <div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#1F2D2D; margin-top:12px; line-height:1.6;">
-                            Voer de onderstaande verificatiecode in de app in om je e-mailadres te verifiëren.
+                            {{__('messages.verify_email_text')}}
                         </div>
 
                         <!-- OTP Code -->
@@ -48,43 +48,12 @@
 
                         <!-- Expiry -->
                         <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#5F7C7C;">
-                            Deze code is slechts beperkte tijd geldig.
+                            {{__('messages.code_validity_message')}}
                         </div>
 
                         <!-- Security Notice -->
                         <div style="margin-top:20px; font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#5F7C7C; line-height:1.6;">
-                            Als je deze code niet hebt aangevraagd, kun je deze e-mail veilig negeren.
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="padding:28px 22px; text-align:center;">
-                        <!-- Title -->
-                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:700; color:#0B2B2B;">
-                            Verify your email
-                        </div>
-
-                        <!-- Instruction -->
-                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#1F2D2D; margin-top:12px; line-height:1.6;">
-                            Enter the verification code below in the app to verify your email address.
-                        </div>
-
-                        <!-- OTP Code -->
-                        <div style="margin-top:22px; margin-bottom:22px;">
-                            <div
-                                style="display:inline-block; font-family:Arial,Helvetica,sans-serif; font-size:32px; letter-spacing:10px; font-weight:800; color:#038D8D; background-color:#EAF7F7; padding:16px 24px; border-radius:10px;">
-                                {{ $otp }}
-                            </div>
-                        </div>
-
-                        <!-- Expiry -->
-                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#5F7C7C;">
-                            This code is valid for a limited time.
-                        </div>
-
-                        <!-- Security Notice -->
-                        <div style="margin-top:20px; font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#5F7C7C; line-height:1.6;">
-                            If you did not request this code, you can safely ignore this email.
+                            {{__('messages.ignore_if_not_requested')}}
                         </div>
                     </td>
                 </tr>
