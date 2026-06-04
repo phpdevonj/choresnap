@@ -221,7 +221,7 @@ trait NotificationTrait {
 //                ];
                 $provider_name = isset($booking->provider) ? $booking->provider->display_name : '';
                 $booking_services_name = isset($booking->service) ? $booking->service->name : '';
-                $data['activity_type'] = __('messages.payment_message', ['status' => $data['payment_status']]);
+                $data['activity_type'] = __('messages.payment_message_status', ['status' => $data['payment_status']]);
                 $data['activity_message'] = __('messages.payment_message_status_message', ['booking_services_name' => $booking_services_name,'provider_name' => $provider_name]);
                 $activity_data = [
                     'activity_type' => $data['activity_type'],
@@ -237,7 +237,7 @@ trait NotificationTrait {
 //                $data['activity_message'] = __('messages.payment_message', ['status' => $data['payment_status']]);
                 $customer_name = isset($booking->customer) ? $booking->customer->display_name : '';
                 $booking_services_name = isset($booking->service) ? $booking->service->name : '';
-                $data['activity_type'] = __('messages.payment_message', ['status' => $data['payment_status']]);
+                $data['activity_type'] = __('messages.payment_message_status_provider', ['status' => $data['payment_status']]);
                 $data['activity_message'] = __('messages.payment_message_status_provider_message', ['booking_services_name' => $booking_services_name,'customer_name' => $customer_name]);
 
                 $activity_data = [
