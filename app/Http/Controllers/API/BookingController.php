@@ -362,7 +362,7 @@ class BookingController extends Controller {
                 ];
                 $this->sendNotification($activity_data);
             } elseif ($data['status'] === 'rejected' && empty($data['start_at']) && empty($data['end_at'])) {
-                //provider decline before Accept booking
+                //provider decline before Accept booking 
                 $rejecte_booking = [
                     'activity_type' => 'rejecte_booking',
                     'booking_id' => $id,

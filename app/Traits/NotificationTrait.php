@@ -219,6 +219,7 @@ trait NotificationTrait {
 //                    'payment_status' => $data['payment_status'],
 //                    'booking_id' => $data['booking_id'],
 //                ];
+
                 $provider_name = isset($booking->provider) ? $booking->provider->display_name : '';
                 $booking_services_name = isset($booking->service) ? $booking->service->name : '';
                 $data['activity_type'] = __('messages.payment_message_status', ['status' => $data['payment_status']]);
