@@ -18,3 +18,7 @@ yarn-error.log
 /nbproject/
 *.json
 choresnap-83bea-firebase-adminsdk-fbsvc-6a45deb36d.json
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
+.gitignore
