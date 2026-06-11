@@ -354,13 +354,26 @@ class BookingController extends Controller {
 
             if ($data['status'] == "rejected" && isset($data['start_at']) && !empty($data['start_at']) && isset($data['end_at']) && !empty($data['end_at'])) {
                 //provider decline after Accept booking
-                $activity_type = 'cancel_booking';
-                $activity_data = [
-                    'activity_type' => $activity_type,
+//                $activity_type = 'cancel_booking';
+//                $activity_data = [
+//                    'activity_type' => $activity_type,
+//                    'booking_id' => $id,
+//                    'booking' => $bookingdata,
+//                ];
+//                $this->sendNotification($activity_data);
+                $rejecte_booking = [
+                    'activity_type' => 'rejecte_booking',
                     'booking_id' => $id,
                     'booking' => $bookingdata,
                 ];
-                $this->sendNotification($activity_data);
+                $this->sendNotification($rejecte_booking);
+
+                $rejecte_booking_provider = [
+                    'activity_type' => 'rejecte_booking_provider',
+                    'booking_id' => $id,
+                    'booking' => $bookingdata,
+                ];
+                $this->sendNotification($rejecte_booking_provider);
             } elseif ($data['status'] === 'rejected' && empty($data['start_at']) && empty($data['end_at'])) {
                 //provider decline before Accept booking 
                 $rejecte_booking = [
