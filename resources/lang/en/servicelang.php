@@ -51,4 +51,6 @@ return array (
   'kattenoppas' => 'Kattenoppas',
   'dog_walker_2' => 'Dog Walker 2',
   'glassware' => 'Glassware',
+  'mowing_lawn' => 'Mowing Lawn',
+  'airbnb_cleaning' => 'Airbnb Cleaning',
 );
