@@ -541,6 +541,12 @@ trait NotificationTrait {
         if ($mailable != null && $mailable->to != null) {
             $mails = json_decode($mailable->to);
 
+            if ($notification_type == 'update_booking_status') {
+                if (!in_array('provider', $mails)) {
+                    $mails[] = 'provider';
+                }
+            }
+
             foreach ($mails as $key => $mailTo) {
 
                 switch ($mailTo) {
