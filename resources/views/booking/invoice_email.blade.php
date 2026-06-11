@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Invoice for [[ booking_services_names ]] with [[ provider_name ]] 🧾</title>
+    <!--<title>Invoice for [[ booking_services_names ]] with [[ provider_name ]] 🧾</title>-->
 </head>
 <body>
 
