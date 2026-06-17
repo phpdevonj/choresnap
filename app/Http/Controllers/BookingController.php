@@ -223,9 +223,9 @@ class BookingController extends Controller {
         } else {
             $data['date'] = isset($request->date) ? date('Y-m-d H:i:s', strtotime($request->date)) : date('Y-m-d H:i:s');
         }
-        $service_data = Service::find($data['service_id']);
+        $service_data = Service::find($data['service_id'] ?? null);
 
-        $data['provider_id'] = !empty($data['provider_id']) ? $data['provider_id'] : $service_data->provider_id;
+        $data['provider_id'] = !empty($data['provider_id']) ? $data['provider_id'] : optional($service_data)->provider_id;
 
         if ($request->has('tax') && $request->tax != null) {
             $data['tax'] = json_encode($request->tax);
@@ -235,7 +235,7 @@ class BookingController extends Controller {
             $coupons = Coupon::with('serviceAdded')->where('code', $request->coupon_id)
                 ->where('expire_date', '>', date('Y-m-d H:i'))->where('status', 1)
                 ->whereHas('serviceAdded', function ($coupon) use ($service_data) {
-                    $coupon->where('service_id', $service_data->id);
+                    $coupon->where('service_id', optional($service_data)->id);
                 })->first();
             if ($coupons == null) {
                 return comman_message_response(__('messages.invalid_coupon_code'), 406);
