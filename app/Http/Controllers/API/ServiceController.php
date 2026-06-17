@@ -422,13 +422,37 @@ class ServiceController extends Controller {
         $startDate = Carbon::parse($date)->subDay()->startOfDay();
         $endDate = Carbon::parse($date)->addDay()->endOfDay();
 
-        $bookings = Booking::select('date', 'duration_diff')
+        $bookings = Booking::with('service')
             ->where(['provider_id' => $providerId])
             ->whereBetween('date', [$startDate, $endDate])
             ->whereNotIn('status', ['cancelled', 'rejected'])
             ->get();
 
-        return comman_message_response(['data' => $bookings]);
+        $data = $bookings->map(function ($booking) {
+            $duration_diff = $booking->duration_diff;
+            if ($duration_diff == 0 && $booking->service) {
+                if ($booking->service->type === 'hourly') {
+                    $duration_diff = ($booking->quantity > 0 ? $booking->quantity : 1) * 60;
+                } else if ($booking->service->duration) {
+                    $durationParts = explode(':', $booking->service->duration);
+                    if (count($durationParts) >= 2) {
+                        $duration_diff = (int)$durationParts[0] * 60 + (int)$durationParts[1];
+                    } else {
+                        $duration_diff = (int)$booking->service->duration * 60;
+                    }
+
+                    if ($booking->quantity > 1) {
+                        $duration_diff = $duration_diff * $booking->quantity;
+                    }
+                }
+            }
+            return [
+                'date' => $booking->date,
+                'duration_diff' => (string)$duration_diff
+            ];
+        });
+
+        return comman_message_response(['data' => $data]);
     }
 
 }
