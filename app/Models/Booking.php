@@ -285,4 +285,32 @@ class Booking extends Model
         }
         return $addonPrice;
     }
+
+    /**
+     * Get effective duration in minutes.
+     * If duration_diff is 0 (booking not yet started/completed),
+     * calculate it from service duration × quantity.
+     */
+    public function getEffectiveDurationDiff(): int
+    {
+        $duration_diff = (int) $this->duration_diff;
+
+        if ($duration_diff === 0 && $this->service) {
+            if ($this->service->duration) {
+                $durationParts = explode(':', $this->service->duration);
+                if (count($durationParts) >= 2) {
+                    $duration_diff = (int)$durationParts[0] * 60 + (int)$durationParts[1];
+                } else {
+                    $duration_diff = (int)$this->service->duration * 60;
+                }
+            }
+
+            $qty = (int) $this->quantity;
+            if ($qty > 1) {
+                $duration_diff = $duration_diff * $qty;
+            }
+        }
+
+        return $duration_diff;
+    }
 }
