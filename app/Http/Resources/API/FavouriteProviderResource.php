@@ -20,7 +20,7 @@ class FavouriteProviderResource extends JsonResource
             'id'            => $this->id,
             'provider_id'    => $this->provider_id,
             'is_favourite'  => 1,
-            'profile_image'=> optional($this->provider)->login_type != null ? optional($this->provider)->social_image : getSingleMedia(optional($this->provider), 'profile_image',null),
+            'profile_image'=> (optional($this->provider)->login_type != null && optional($this->provider)->social_image != null) ? optional($this->provider)->social_image : getSingleMedia(optional($this->provider), 'profile_image',null),
             'display_name' => optional($this->provider)->display_name,
             'email' => optional($this->provider)->email,
             'contact_number' => optional($this->provider)->contact_number,
