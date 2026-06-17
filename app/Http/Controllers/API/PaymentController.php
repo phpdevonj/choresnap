@@ -82,23 +82,27 @@ class PaymentController extends Controller
 
 
         
-        $activity_data_customer = [
-            'activity_type' => 'add_booking',
-            'booking_id' => $booking->id,
-            'booking' => $booking,
-        ];
-        $this->sendNotification($activity_data_customer);
+        if ($result->payment_status !== 'failed' && $result->payment_status !== 'unpaid') {
+            $activity_data_customer = [
+                'activity_type' => 'add_booking',
+                'booking_id' => $booking->id,
+                'booking' => $booking,
+            ];
+            $this->sendNotification($activity_data_customer);
 
-        $activity_data_provider = [
-            'activity_type' => 'add_booking_provider',
-            'booking_id' => $booking->id,
-            'booking' => $booking,
-        ];
-        $this->sendNotification($activity_data_provider);
+            $activity_data_provider = [
+                'activity_type' => 'add_booking_provider',
+                'booking_id' => $booking->id,
+                'booking' => $booking,
+            ];
+            $this->sendNotification($activity_data_provider);
+        } else {
+            // If payment fails, we cancel the booking so it's not active
+            $booking->status = 'cancelled';
+            $booking->save();
+        }
 
-
-
-        if($result->payment_status == 'failed')
+        if($result->payment_status == 'failed' || $result->payment_status == 'unpaid')
         {
             $status_code = 400;
         }
