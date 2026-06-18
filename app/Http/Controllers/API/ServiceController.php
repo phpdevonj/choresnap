@@ -425,10 +425,10 @@ class ServiceController extends Controller {
         $bookings = Booking::with('service')
             ->where(['provider_id' => $providerId])
             ->whereBetween('date', [$startDate, $endDate])
-            ->whereNotIn('status', ['cancelled', 'rejected'])
+            ->whereNotIn('status', ['cancelled', 'rejected', 'pending'])
             ->where(function ($query) {
                 // Exclude bookings where payment exists but is still 'pending' (payment not completed)
-                // Only consider bookings with valid payment (paid/advanced_paid) OR COD (no payment record / payment_id is null)
+                // Only consider bookings with valid payment (paid/advanced_paid) OR COD (no payment record)
                 $query->whereDoesntHave('payment', function ($q) {
                     $q->where('payment_status', 'pending');
                 })->orWhereNull('payment_id');
