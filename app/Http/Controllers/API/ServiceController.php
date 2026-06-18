@@ -426,6 +426,13 @@ class ServiceController extends Controller {
             ->where(['provider_id' => $providerId])
             ->whereBetween('date', [$startDate, $endDate])
             ->whereNotIn('status', ['cancelled', 'rejected'])
+            ->where(function ($query) {
+                // Exclude bookings where payment exists but is still 'pending' (payment not completed)
+                // Only consider bookings with valid payment (paid/advanced_paid) OR COD (no payment record / payment_id is null)
+                $query->whereDoesntHave('payment', function ($q) {
+                    $q->where('payment_status', 'pending');
+                })->orWhereNull('payment_id');
+            })
             ->get();
 
         $data = $bookings->map(function ($booking) {
