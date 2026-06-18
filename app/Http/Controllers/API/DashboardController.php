@@ -198,6 +198,7 @@ class DashboardController extends Controller {
         $pending_booking = Booking::where('provider_id', auth()->user()->id)
             ->where('status', 'pending')
             ->whereDate('date', '>=', Carbon::today())
+            ->whereHas('payment') // sirf wahi bookings jinka payment record hai
             ->orderBy('id', 'DESC')
             ->count();
 
