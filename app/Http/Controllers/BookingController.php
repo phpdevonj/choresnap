@@ -861,6 +861,7 @@ class BookingController extends Controller {
     }
 
     public function cancelStripePayment(Request $request, $id) {
+        \Illuminate\Support\Facades\Log::warning('Stripe cancel_url hit by user', ['booking_id' => $id, 'request_data' => $request->all()]);
 
         $result = Payment::where('booking_id', $id)->first();
 

@@ -103,9 +103,11 @@ class StripePaymentController extends Controller {
                 return response()->json(['status' => 'success']);
             case 'payment_intent.payment_failed':
             case 'payment_intent.canceled':
+                Log::error('Stripe Webhook: Payment Failed/Canceled', ['event_type' => $eventType, 'data' => $eventData]);
                 $this->handlePaymentFailure($eventData);
                 return response()->json(['status' => 'failed']);
             default:
+                Log::info('Stripe Webhook: Event Ignored', ['event_type' => $eventType]);
                 return response()->json(['status' => 'ignored']);
         }
 
