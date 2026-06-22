@@ -2008,8 +2008,8 @@ function getstripepayments($data) {
     try {
         $stripe = new \Stripe\StripeClient($stripe_secret);
         $checkout_session = $stripe->checkout->sessions->create([
-
             'success_url' => $baseURL . '/save-stripe-payment/' . $data['booking_id'] . '?type=' . $data['type'],
+            'cancel_url' => $baseURL . '/cancel-stripe-payment/' . $data['booking_id'] . '?type=' . $data['type'],
             'payment_method_types' => ['card'],
             'billing_address_collection' => 'required',
             'line_items' => [
@@ -2092,6 +2092,7 @@ function addWalletAmount($data) {
         $stripe = new \Stripe\StripeClient($stripe_secret);
         $checkout_session = $stripe->checkout->sessions->create([
             'success_url' => $baseURL . '/save-wallet-stripe-payment/' . $data['customer_id'] . '?amount=' . $data['amount'], // Use the route name
+            'cancel_url' => $baseURL . '/home', // Redirect home or wallet page on cancel
             'payment_method_types' => ['card'],
             'billing_address_collection' => 'required',
             'line_items' => [

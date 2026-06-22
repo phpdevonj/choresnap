@@ -859,5 +859,24 @@ class BookingController extends Controller {
         return redirect('/booking-list');
 
     }
+
+    public function cancelStripePayment(Request $request, $id) {
+
+        $result = Payment::where('booking_id', $id)->first();
+
+        if ($result) {
+            $result->payment_status = 'failed';
+            $result->update();
+        }
+
+        $booking = Booking::find($id);
+        if ($booking) {
+            $booking->status = 'cancelled';
+            $booking->save();
+        }
+
+        return redirect('/booking-list')->withError(__('messages.payment_failed') ?? 'Payment failed or cancelled.');
+
+    }
 }
 

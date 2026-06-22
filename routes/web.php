@@ -195,6 +195,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
     Route::post('save-payment', [App\Http\Controllers\API\PaymentController::class, 'savePayment'])->name('payment.save');
     Route::get('save-stripe-payment/{id}', [App\Http\Controllers\BookingController::class, 'saveStripePayment']);
+    Route::get('cancel-stripe-payment/{id}', [App\Http\Controllers\BookingController::class, 'cancelStripePayment']);
 
 
     Route::get('user-change-password', [CustomerController::class, 'getChangePassword'])->name('user.getchangepassword');

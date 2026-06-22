@@ -101,9 +101,12 @@ class StripePaymentController extends Controller {
             case 'payment_intent.succeeded':
                 $this->handlePaymentSuccess($eventData);
                 return response()->json(['status' => 'success']);
-            default:
+            case 'payment_intent.payment_failed':
+            case 'payment_intent.canceled':
                 $this->handlePaymentFailure($eventData);
                 return response()->json(['status' => 'failed']);
+            default:
+                return response()->json(['status' => 'ignored']);
         }
 
         // try {
@@ -147,6 +150,11 @@ class StripePaymentController extends Controller {
 //        $payment = Payment::where('booking_id', $paymentIntent['metadata']['booking_id'])->first();
         if ($payment) {
             $payment->update(['payment_status' => 'failed']);
+            $booking = \App\Models\Booking::find($payment->booking_id);
+            if ($booking) {
+                $booking->status = 'cancelled';
+                $booking->save();
+            }
         }
     }
 
