@@ -82,7 +82,7 @@ class PaymentController extends Controller
 
 
         
-        if ($result->payment_status !== 'failed' && $result->payment_status !== 'unpaid' && $result->payment_status !== 'failed') {
+        if ($result->payment_status !== 'failed' && $result->payment_status !== 'unpaid' && $result->payment_status !== 'failed' && $result->payment_status !== 'stripe') {
             $activity_data_customer = [
                 'activity_type' => 'add_booking',
                 'booking_id' => $booking->id,
@@ -102,7 +102,7 @@ class PaymentController extends Controller
             $booking->save();
         }
 
-        if($result->payment_status == 'failed' || $result->payment_status == 'unpaid')
+        if($result->payment_status == 'failed' || $result->payment_status == 'unpaid' || $result->payment_status == 'stripe')
         {
             $status_code = 400;
         }
