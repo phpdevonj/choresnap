@@ -513,7 +513,13 @@ trait NotificationTrait {
             $currencyChange = new CurrencyChange();
             $notification_data['cancellation_reason'] = $booking->reason;
             $notification_data['total_amount'] = $currencyChange->defaultSymbol() . ' ' . $booking->total_amount;
-            $notification_data['service_amount'] = $booking->amount;
+            $serviceAmount = $booking->amount;
+            if (!empty($booking->final_total_service_price)) {
+                $serviceAmount = $booking->final_total_service_price;
+            } else if ($booking->quantity > 1) {
+                $serviceAmount = $booking->amount * $booking->quantity;
+            }
+            $notification_data['service_amount'] = $serviceAmount;
 
 
             $notification_data['venue_address'] = $booking->address;
@@ -521,8 +527,36 @@ trait NotificationTrait {
 
             $duration = '';
             try {
-                [$hours, $minutes] = explode(':', $booking->service->duration);
-                $duration = "$hours hr $minutes min";
+                if ($booking->service) {
+                    $duration_diff = 0;
+                    if ($booking->service->type === 'hourly') {
+                        $duration_diff = ($booking->quantity > 0 ? $booking->quantity : 1) * 60;
+                    } else if ($booking->service->duration) {
+                        $durationParts = explode(':', $booking->service->duration);
+                        if (count($durationParts) >= 2) {
+                            $duration_diff = (int)$durationParts[0] * 60 + (int)$durationParts[1];
+                        } else {
+                            $duration_diff = (int)$booking->service->duration * 60;
+                        }
+
+                        if ($booking->quantity > 1) {
+                            $duration_diff = $duration_diff * $booking->quantity;
+                        }
+                    }
+
+                    if ($duration_diff > 0) {
+                        $hours = floor($duration_diff / 60);
+                        $minutes = $duration_diff % 60;
+                        $duration = "$hours hr $minutes min";
+                    } else if ($booking->service->duration) {
+                        $durationParts = explode(':', $booking->service->duration);
+                        if (count($durationParts) >= 2) {
+                            $duration = (int)$durationParts[0] . " hr " . (int)$durationParts[1] . " min";
+                        } else {
+                            $duration = $booking->service->duration . " min";
+                        }
+                    }
+                }
             } catch (\Exception $exception) {
 
             }
