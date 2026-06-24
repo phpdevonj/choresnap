@@ -519,6 +519,19 @@ trait NotificationTrait {
             } else if ($booking->quantity > 1) {
                 $serviceAmount = $booking->amount * $booking->quantity;
             }
+
+            $discount_percentage = 0;
+            if (isset($booking->service) && $booking->service->discount > 0) {
+                $discount_percentage = $booking->service->discount;
+            } elseif (isset($booking->discount) && $booking->discount > 0) {
+                $discount_percentage = $booking->discount;
+            }
+
+            if ($discount_percentage > 0) {
+                $discountAmount = ($serviceAmount * $discount_percentage) / 100;
+                $serviceAmount = $serviceAmount - $discountAmount;
+            }
+
             $notification_data['service_amount'] = $serviceAmount;
 
 
