@@ -497,6 +497,16 @@ trait NotificationTrait {
 
         if (isset($booking)) {
             $booking_datetime = $booking->date;
+            if (!empty($booking->timezone)) {
+                $tzOffset = trim(str_replace(['UTC', 'utc', ' '], '', $booking->timezone));
+                if (!empty($tzOffset)) {
+                    try {
+                        $booking_datetime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $booking->date, 'UTC')->setTimezone($tzOffset)->format('Y-m-d H:i:s');
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Timezone conversion error: ' . $e->getMessage());
+                    }
+                }
+            }
             list($date, $time) = explode(' ', $booking_datetime);
 
             $notification_data['customer_name'] = isset($booking->customer) ? $booking->customer->display_name : '';

@@ -212,6 +212,10 @@ class BookingController extends Controller {
 
         $data['tax'] = null;
 
+        if ($request->has('time_zone')) {
+            $data['timezone'] = $request->time_zone;
+        }
+
         if ($request->id == null) {
             $data['status'] = !empty($data['status']) ? $data['status'] : 'pending';
         }

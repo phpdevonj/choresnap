@@ -37,7 +37,8 @@ class Booking extends Model
         'final_sub_total',
         'final_discount_amount',
         'final_coupon_discount_amount',
-        'total_admin_fee'
+        'total_admin_fee',
+        'timezone'
     ];
 
     protected $casts = [
