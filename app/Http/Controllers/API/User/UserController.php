@@ -221,6 +221,17 @@ class UserController extends Controller {
             ]);
         }
 
+        // Trigger registration notification/email (template type = 'resgister')
+        try {
+            $this->sendNotification([
+                'activity_type' => 'resgister',
+                'user_id'       => $user->id,
+                'user_type'     => $user->user_type,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error($e);
+        }
+
         if (!empty($input['loginfrom']) && $input['loginfrom'] === 'vue-app' && $user->user_type != 'user') {
             return comman_custom_response([
                 'message' => $message,
