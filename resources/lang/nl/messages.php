@@ -843,4 +843,7 @@
   'cancel_booking_provider_message' => ':customer_name heeft je :booking_services_name geannuleerd.',
   'booking_status_update_message' => 'Status bijgewerkt: :booking_services_name voor :customer_name is nu :to',
   'subject_otp_email' => 'Uw ChoreSnap-verificatiecode 🔐',
+  'username_not_available' => 'Gebruikersnaam is niet beschikbaar.',
+  'email_used_with_different_username' => 'Dit e-mailadres wordt al gebruikt met een andere gebruikersnaam.',
+  'user_exists_with_same_details' => 'Er bestaat al een gebruiker met deze gebruikersnaam, dit e-mailadres en deze rol.',
 );

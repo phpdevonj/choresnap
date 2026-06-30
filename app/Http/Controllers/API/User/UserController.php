@@ -148,7 +148,7 @@ class UserController extends Controller {
 
         if ($usernameConflict) {
             return comman_custom_response([
-                'message' => 'Username not available.'
+                'message' => trans('messages.username_not_available')
             ], 403);
         }
 
@@ -159,7 +159,7 @@ class UserController extends Controller {
 
         if ($emailConflict) {
             return comman_custom_response([
-                'message' => 'This email is already used with a different username.'
+                'message' =>  trans('messages.email_used_with_different_username')
             ], 403);
         }
 
@@ -188,7 +188,7 @@ class UserController extends Controller {
             $user = User::create($input);
         } catch (\Illuminate\Database\QueryException $e) {
             return comman_custom_response([
-                'message' => 'User already exists with this username, email, and role.'
+                'message' => trans('messages.user_exists_with_same_details')
             ], 403);
         }
 

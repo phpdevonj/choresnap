@@ -842,4 +842,7 @@
   'cancel_booking_provider_message' => ':customer_name cancelled your :booking_services_name',
   'booking_status_update_message' => 'Status updated: :booking_services_name for :customer_name is now :to',
   'subject_otp_email' => 'Your ChoreSnap verification code 🔐',
+  'username_not_available' => 'Username not available.',
+  'email_used_with_different_username' => 'This email is already used with a different username.',
+  'user_exists_with_same_details' => 'User already exists with this username, email, and role.',
 );
