@@ -171,6 +171,9 @@ trait NotificationTrait {
                 $customer_name = $booking->customer->display_name;
                 $booking_services_name = isset($booking->service) ? $booking->service->name : '';
                 $data['activity_message'] = __('messages.booking_status_update_message', ['id' => $booking->id, 'from' => $old_status, 'to' => $status, 'booking_services_name' => $booking_services_name, 'customer_name' => $customer_name]);
+                // Raw status values so the message can be re-localized per recipient (see CommonNotification)
+                $data['booking_status_value'] = $booking->status;
+                $data['old_booking_status_value'] = $booking->old_status;
                 $handymanId = $booking->handymanAdded ? $booking->handymanAdded->pluck('handyman_id') : null;
                 $activity_data = [
                     'reason' => $booking->reason,

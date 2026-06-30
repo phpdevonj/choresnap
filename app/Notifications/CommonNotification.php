@@ -124,7 +124,8 @@ class CommonNotification extends Notification implements ShouldQueue
     public function toFcm($notifiable)
     {
 
-        $msg = $this->data['message'];
+        $localizedData = $this->localizedData($notifiable);
+        $msg = $localizedData['message'];
         if (! isset($msg) && $msg == '') {
             $msg = __('message.notification_body');
         }
@@ -167,8 +168,68 @@ class CommonNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
-        return $this->data;
+        return $this->localizedData($notifiable);
 
 
+    }
+
+    /**
+     * Re-render notification data in the recipient's selected language.
+     * Currently scoped to the booking status update so no other notification
+     * type is affected. Falls back to the originally built data otherwise.
+     *
+     * @param  mixed  $notifiable
+     * @return array
+     */
+    protected function localizedData($notifiable)
+    {
+        $data = $this->data;
+
+        if ($this->type === 'update_booking_status' && isset($data['booking_status_value'])) {
+            $previousLocale = app()->getLocale();
+            $locale = (isset($notifiable->language) && $notifiable->language) ? $notifiable->language : $previousLocale;
+            app()->setLocale($locale);
+
+            $statusLabel = $this->translateBookingStatus($data['booking_status_value']);
+            $oldStatusLabel = $this->translateBookingStatus($data['old_booking_status_value'] ?? '');
+
+            $data['message'] = __('messages.booking_status_update_message', [
+                'id' => $data['booking_id'] ?? '',
+                'from' => $oldStatusLabel,
+                'to' => $statusLabel,
+                'booking_services_name' => $data['booking_services_names'] ?? '',
+                'customer_name' => $data['customer_name'] ?? '',
+            ]);
+            $data['booking_status'] = $statusLabel;
+
+            app()->setLocale($previousLocale);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Translate a booking status value using the language files, falling back
+     * to the static DB label when no safe translation key exists.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    protected function translateBookingStatus($value)
+    {
+        if ($value === '' || $value === null) {
+            return '';
+        }
+
+        $key = 'messages.status_' . $value;
+        $translated = __($key);
+
+        // Missing key (returns the key itself) or a key carrying placeholders
+        // is unsafe to use as a plain status label -> fall back to the DB label.
+        if ($translated === $key || strpos($translated, ':') !== false) {
+            return \App\Models\BookingStatus::bookingStatus($value);
+        }
+
+        return $translated;
     }
 }
