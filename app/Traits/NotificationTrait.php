@@ -170,8 +170,8 @@ trait NotificationTrait {
                 $statusKey = 'status_' . strtolower($status);
                 $oldStatusKey = 'status_' . strtolower($old_status);
 
-                $status = __($statusKey);
-                $old_status = __($oldStatusKey);
+                $status = __('messages.'.$statusKey);
+                $old_status = __('messages.'.$oldStatusKey);
 
                 $data['activity_type'] = __('messages.update_booking_status');
 //                $data['activity_message'] = __('messages.booking_status_update', ['id' => $booking->id, 'from' => $old_status, 'to' => $status]);
@@ -488,7 +488,7 @@ trait NotificationTrait {
         $generalsetting = json_decode($generalsetting->value);
         $notification_data = [
             'id' => $id,
-            'type' => __($data['activity_type']) ?? $data['activity_type'],
+            'type' => __('messages.'.$data['activity_type']) ?? $data['activity_type'],
 //            'booking_status' => $data['activity_type'],
             'message' => $data['activity_message'],
             "ios_badgeType" => "Increase",
