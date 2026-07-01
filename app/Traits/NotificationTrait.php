@@ -166,6 +166,13 @@ trait NotificationTrait {
             case "update_booking_status":
                 $status = \App\Models\BookingStatus::bookingStatus($booking->status);
                 $old_status = \App\Models\BookingStatus::bookingStatus($booking->old_status);
+
+                $statusKey = 'status_' . strtolower($status);
+                $oldStatusKey = 'status_' . strtolower($old_status);
+
+                $status = __($statusKey);
+                $old_status = __($oldStatusKey);
+
                 $data['activity_type'] = __('messages.update_booking_status');
 //                $data['activity_message'] = __('messages.booking_status_update', ['id' => $booking->id, 'from' => $old_status, 'to' => $status]);
                 $customer_name = $booking->customer->display_name;
