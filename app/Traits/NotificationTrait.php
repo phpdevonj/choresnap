@@ -486,9 +486,16 @@ trait NotificationTrait {
         }
         $generalsetting = \App\Models\Setting::where('type', 'general-setting')->where('key', 'general-setting')->first();
         $generalsetting = json_decode($generalsetting->value);
+        // The switch above already translates $data['activity_type'] for some
+        // activity types (e.g. "Boekingsstatus Update") while leaving others as
+        // a raw key (e.g. "add_wallet"). Only translate when the key actually
+        // exists; __() returns the key itself when missing, so fall back to the
+        // already-translated activity_type instead of storing "messages.xxx".
+        $typeKey = 'messages.' . $data['activity_type'];
+        $typeTranslated = __($typeKey);
         $notification_data = [
             'id' => $id,
-            'type' => __('messages.'.$data['activity_type']) ?? $data['activity_type'],
+            'type' => $typeTranslated === $typeKey ? $data['activity_type'] : $typeTranslated,
 //            'booking_status' => $data['activity_type'],
             'message' => $data['activity_message'],
             "ios_badgeType" => "Increase",
