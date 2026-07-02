@@ -212,10 +212,16 @@ class ProviderController extends Controller {
         }
         if ($data['status'] == 1 && auth()->user()->hasAnyRole(['admin'])) {
             try {
+                $previousLocale = app()->getLocale();
+                app()->setLocale($user->language ?: config('app.locale'));
+                $activationSubject = __('messages.account_activated_subject');
+                app()->setLocale($previousLocale);
+
                 \Mail::send('verification.verification_email',
-                    array(), function ($message) use ($user) {
+                    array(), function ($message) use ($user, $activationSubject) {
                         $message->from(env('MAIL_FROM_ADDRESS'));
                         $message->to($user->email);
+                        $message->subject($activationSubject);
                     });
             } catch (\Throwable $th) {
 

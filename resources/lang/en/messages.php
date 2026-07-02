@@ -555,6 +555,7 @@
   'status_completed' => 'Completed',
   'status_pending_approval' => 'Pending Approval',
   'status_waiting' => 'Waiting',
+  'account_activated_subject' => 'Your ChoreSnap account has been activated 🎉',
   'canceled' => 'canceled',
   'nodata' => 'No data available',
   'invoice' => 'Invoice',

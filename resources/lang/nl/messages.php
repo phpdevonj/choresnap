@@ -554,6 +554,7 @@
   'status_completed' => 'Voltooid',
   'status_pending_approval' => 'In afwachting van goedkeuring',
   'status_waiting' => 'Wachten',
+  'account_activated_subject' => 'Uw ChoreSnap-account is geactiveerd 🎉',
   'canceled' => 'Geannuleerd',
   'nodata' => 'Geen gegevens beschikbaar',
   'invoice' => 'Factuur',

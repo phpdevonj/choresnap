@@ -576,6 +576,7 @@ return [
     'status_completed' => 'Completato',
     'status_pending_approval' => 'In attesa di approvazione',
     'status_waiting' => 'In attesa',
+    'account_activated_subject' => 'Il tuo account ChoreSnap è stato attivato 🎉',
     'canceled' => 'Annullato',
     'nodata' => 'Nessun dato disponibile',
     'invoice' => 'Fattura',
