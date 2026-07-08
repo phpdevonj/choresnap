@@ -241,7 +241,7 @@ class ServiceController extends Controller {
             if (empty($provider->address)) {
                 $message = __('messages.provider_address_required_for_my_address');
                 if ($request->is('api/*')) {
-                    return comman_message_response($message);
+                    return comman_message_response($message, 400);
                 } else {
                     return redirect()->back()->withErrors($message);
                 }
