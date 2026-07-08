@@ -232,6 +232,21 @@ class ServiceController extends Controller {
 
         $services['service_type'] = !empty($request->service_type) ? $request->service_type : 'service';
         $services['provider_id'] = !empty($request->provider_id) ? $request->provider_id : auth()->user()->id;
+
+        // Validate that the provider has an address when visit_type is 'online'
+        if ($request->visit_type === 'online') {
+            $providerId = !empty($request->provider_id) ? $request->provider_id : auth()->user()->id;
+            $provider = User::find($providerId);
+
+            if (empty($provider->address)) {
+                $message = __('messages.provider_address_required_for_my_address');
+                if ($request->is('api/*')) {
+                    return comman_message_response($message);
+                } else {
+                    return redirect()->back()->withErrors($message);
+                }
+            }
+        }
         if (auth()->user()->hasRole('user')) {
             $services['service_type'] = 'user_post_service';
         }

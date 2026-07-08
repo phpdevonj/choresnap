@@ -858,4 +858,5 @@
   'username_not_available' => 'Gebruikersnaam is niet beschikbaar.',
   'email_used_with_different_username' => 'Dit e-mailadres wordt al gebruikt met een andere gebruikersnaam.',
   'user_exists_with_same_details' => 'Er bestaat al een gebruiker met deze gebruikersnaam, dit e-mailadres en deze rol.',
+  'provider_address_required_for_my_address' => 'U kunt alleen "Mijn adres" selecteren als u een adres aan uw profiel hebt toegevoegd. Werk eerst uw profiel bij met uw adres. Daarna kunt u "Mijn adres" voor deze service selecteren.',
 );
