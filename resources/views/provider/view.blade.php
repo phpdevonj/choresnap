@@ -108,7 +108,7 @@
                 width: 380,
                 type: 'pie',
             },
-            labels: ['Pending', 'cancell', 'completed', 'accepted'],
+            labels: ['Pending', 'cancelled', 'completed', 'accepted'],
             responsive: [{
                 breakpoint: 480,
                 options: {
