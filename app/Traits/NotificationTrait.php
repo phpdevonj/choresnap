@@ -514,14 +514,20 @@ trait NotificationTrait {
 
         if (isset($booking)) {
             $booking_datetime = $booking->date;
+            // Booking dates are stored in UTC. Convert to the booking's own
+            // timezone when present, otherwise fall back to the app/site
+            // timezone so emails show the same local time the app displays
+            // (bookings currently have a NULL timezone).
             if (!empty($booking->timezone)) {
-                $tzOffset = trim(str_replace(['UTC', 'utc', ' '], '', $booking->timezone));
-                if (!empty($tzOffset)) {
-                    try {
-                        $booking_datetime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $booking->date, 'UTC')->setTimezone($tzOffset)->format('Y-m-d H:i:s');
-                    } catch (\Exception $e) {
-                        \Illuminate\Support\Facades\Log::error('Timezone conversion error: ' . $e->getMessage());
-                    }
+                $targetTimezone = trim(str_replace(['UTC', 'utc', ' '], '', $booking->timezone));
+            } else {
+                $targetTimezone = $app_setting->time_zone ?? 'UTC';
+            }
+            if (!empty($targetTimezone)) {
+                try {
+                    $booking_datetime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $booking->date, 'UTC')->setTimezone($targetTimezone)->format('Y-m-d H:i:s');
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Timezone conversion error: ' . $e->getMessage());
                 }
             }
             list($date, $time) = explode(' ', $booking_datetime);
