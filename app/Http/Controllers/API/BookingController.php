@@ -288,10 +288,11 @@ class BookingController extends Controller {
         }*/
 
         if ($data['status'] == 'rejected') {
+            // The provider acts as their own handyman, so unassign the mapping
+            // on reject but keep the booking as 'rejected' (previously this was
+            // forced back to 'accept', which stopped the reject from applying).
             if ($bookingdata->handymanAdded()->count() > 0) {
-                $assigned_handyman_ids = $bookingdata->handymanAdded()->pluck('handyman_id')->toArray();
                 $bookingdata->handymanAdded()->delete();
-                $data['status'] = 'accept';
             }
         }
 
