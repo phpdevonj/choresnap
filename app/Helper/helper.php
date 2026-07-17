@@ -2436,3 +2436,31 @@ if (!function_exists('refreshStripeAccountDetails')) {
         }
     }
 }
+
+if (!function_exists('unreadNotificationCount')) {
+    /**
+     * Unread notification count for a user.
+     *
+     * Mirrors the filter used by NotificationController::notificationList so
+     * the badge count always matches what the list actually shows. Without the
+     * filter, non-booking notifications (register, wallet, payout...) are
+     * counted but never displayed.
+     *
+     * @param  \App\Models\User  $user
+     * @return int
+     */
+    function unreadNotificationCount($user)
+    {
+        if (empty($user)) {
+            return 0;
+        }
+
+        return $user->unreadNotifications()
+            ->whereIn('data->id', function ($query) {
+                $query->select('id')
+                    ->from('bookings')
+                    ->whereNotNull('payment_id');
+            })
+            ->count();
+    }
+}

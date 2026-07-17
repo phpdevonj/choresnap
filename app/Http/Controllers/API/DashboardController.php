@@ -131,7 +131,7 @@ class DashboardController extends Controller {
 
             if ($user) {
 
-                $notification = $user->unreadNotifications()->count();
+                $notification = unreadNotificationCount($user);
             }
 
             $upcomming_booking = Booking::where('customer_id', $request->customer_id)
@@ -242,7 +242,7 @@ class DashboardController extends Controller {
 
         $commission = ProviderType::where('id', $provider->providertype_id)->first();
 
-        $notification = $provider->unreadNotifications()->count();
+        $notification = unreadNotificationCount($provider);
 
         $active_plan = get_user_active_plan($provider->id);
         if (is_any_plan_active($provider->id) == 0 && is_subscribed_user($provider->id) == 0) {
@@ -473,7 +473,7 @@ class DashboardController extends Controller {
             }
         }
 
-        $notification = $handyman->unreadNotifications()->count();
+        $notification = unreadNotificationCount($handyman);
 
         $upcomming_booking = Booking::myBooking()->with('customer')->where('status', 'pending')->orderBy('id', 'DESC')->take(5)->get();
         if (!empty($upcomming_booking)) {
@@ -503,7 +503,7 @@ class DashboardController extends Controller {
     public function adminDashboard(Request $request) {
         $admin = User::find(auth()->user()->id);
 
-        $notification = $admin->unreadNotifications()->count();
+        $notification = unreadNotificationCount($admin);
 
         $services = Booking::with('categoryService')->myBooking()->showServiceCount()->take(5)->get();
 
