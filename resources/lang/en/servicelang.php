@@ -53,4 +53,11 @@ return array (
   'glassware' => 'Glassware',
   'mowing_lawn' => 'Mowing Lawn',
   'airbnb_cleaning' => 'Airbnb Cleaning',
+  'ovenschoonmaken' => 'Ovenschoonmaken',
+  'system_repair' => 'System Repair',
+  'auto_schoonmaak_service' => 'Auto Schoonmaak Service',
+  'wasabi_planting' => 'Wasabi Planting',
+  'car_detailing' => 'Car detailing',
+  'hard_drive' => 'Hard Drive',
+  'huis_schoonmaken' => 'Huis Schoonmaken',
 );

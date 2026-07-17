@@ -857,5 +857,5 @@
   'username_not_available' => 'Username not available.',
   'email_used_with_different_username' => 'This email is already used with a different username.',
   'user_exists_with_same_details' => 'User already exists with this username, email, and role.',
-  'provider_address_required_for_my_address' => 'You can select "My Address" only if you have added an address to your profile. Please update your profile with your address first, then you can select "My Address" for this service.',
+  'provider_address_required_for_my_address' => '"My Address" can only be selected after you\'ve added an address under "Edit profile". Please update your address there and try again.',
 );
