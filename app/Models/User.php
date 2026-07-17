@@ -29,7 +29,8 @@ class User extends Authenticatable implements HasMedia {
         'login_type', 'service_address_id', 'uid', 'is_subscribe',
         'social_image', 'is_available', 'designation', 'last_online_time', 'stripe_account_id',
         'known_languages', 'skills', 'description', 'why_choose_me', 'is_email_verified', 'language', 'fcm_token',
-        'custom_commission_type', 'custom_commission_value'
+        'custom_commission_type', 'custom_commission_value',
+        'stripe_verification_status', 'stripe_first_name', 'stripe_last_name'
     ];
 
     /**

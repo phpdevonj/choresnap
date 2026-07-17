@@ -379,6 +379,10 @@ class DashboardController extends Controller {
             } else {
                 $account = Account::retrieve($stripeAccountId);
             }
+
+            // Keep the stored Stripe details in sync on every retrieval.
+            syncStripeAccountDetails(auth()->user(), $account);
+
             $response['account'] = $account;
             $currency = $account->default_currency ?? 'EUR';
             // Create a NumberFormatter instance with the 'currency' style

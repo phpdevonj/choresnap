@@ -766,6 +766,13 @@ class HomeController extends Controller {
         // Retrieve the account from Stripe
         $account = \Stripe\Account::retrieve($accountId);
 
+        // Onboarding is done, so this is where Stripe finally has the
+        // provider's name and verification state -> store them for the admin.
+        $stripeUser = \App\Models\User::where('stripe_account_id', $accountId)->first();
+        if ($stripeUser) {
+            syncStripeAccountDetails($stripeUser, $account);
+        }
+
         // Check if onboarding is actually complete
         if ($account->charges_enabled && $account->payouts_enabled) {
             $status = 'completed';

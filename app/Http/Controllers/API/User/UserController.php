@@ -311,6 +311,10 @@ class UserController extends Controller {
             $user->stripe_account_id = $account->id;
             $user->save();
 
+            // Store the initial Stripe details; the name/verification state get
+            // refreshed once the provider completes onboarding.
+            syncStripeAccountDetails($user, $account);
+
             // Create onboarding link
             $accountLink = \Stripe\AccountLink::create([
                 'account' => $account->id,

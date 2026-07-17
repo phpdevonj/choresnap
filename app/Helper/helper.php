@@ -2348,3 +2348,91 @@ function createUpdateServiceLang(): void {
         File::put($filePath, $phpContent);
     }
 }
+
+if (!function_exists('syncStripeAccountDetails')) {
+    /**
+     * Store the Stripe connected account details on the user so admins can
+     * reference them (e.g. when contacting Stripe support).
+     *
+     * The individual name and verification state are only filled in by the
+     * provider during Stripe onboarding, so this is called wherever the
+     * account is created or retrieved to keep the stored values fresh.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \Stripe\Account   $account
+     * @return void
+     */
+    function syncStripeAccountDetails($user, $account)
+    {
+        if (empty($user) || empty($account)) {
+            return;
+        }
+
+        try {
+            if (!empty($account->requirements->disabled_reason)) {
+                $status = 'restricted';
+            } elseif (!empty($account->charges_enabled) && !empty($account->payouts_enabled)) {
+                $status = 'verified';
+            } else {
+                $status = 'pending';
+            }
+
+            $user->stripe_account_id = $account->id ?? $user->stripe_account_id;
+            $user->stripe_verification_status = $status;
+
+            // Only overwrite the names once Stripe actually has them, so an
+            // earlier synced value is never wiped by a later empty response.
+            if (!empty($account->individual->first_name)) {
+                $user->stripe_first_name = $account->individual->first_name;
+            }
+            if (!empty($account->individual->last_name)) {
+                $user->stripe_last_name = $account->individual->last_name;
+            }
+
+            $user->save();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Stripe account sync failed: ' . $e->getMessage());
+        }
+    }
+}
+
+if (!function_exists('refreshStripeAccountDetails')) {
+    /**
+     * Fetch the connected account from Stripe and store its details on the
+     * user. Used when an admin opens a provider page so the values are always
+     * current without needing a cron.
+     *
+     * Never throws: a Stripe outage must not break the admin page.
+     *
+     * @param  \App\Models\User  $user
+     * @return void
+     */
+    function refreshStripeAccountDetails($user)
+    {
+        if (empty($user) || empty($user->stripe_account_id)) {
+            return;
+        }
+
+        try {
+            $paymentGateway = \App\Models\PaymentGateway::where('type', 'stripe')->first();
+            if (!$paymentGateway) {
+                return;
+            }
+
+            $val = $paymentGateway->is_test == '1' ? $paymentGateway->value : $paymentGateway->live_value;
+            $val = is_array($val) ? $val : json_decode($val, true);
+            $secretKey = $val['stripe_key'] ?? null;
+
+            if (empty($secretKey)) {
+                return;
+            }
+
+            \Stripe\Stripe::setApiKey($secretKey);
+            $account = \Stripe\Account::retrieve($user->stripe_account_id);
+
+            syncStripeAccountDetails($user, $account);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Stripe account refresh failed for user ' . $user->id . ': ' . $e->getMessage());
+        }
+    }
+}

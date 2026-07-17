@@ -181,6 +181,40 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-md-12">&nbsp;</div>
+                            <div class="col-md-12">&nbsp;</div>
+                            <div class="col-md-12">&nbsp;</div>
+                        </div>
+                        <!-- Stripe Details Section -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3">{{ __('messages.stripe_account_details') }}</h5>
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        {{ Form::label('stripe_account_id', __('messages.stripe_account_id'), ['class' => 'form-control-label']) }}
+                                        {{ Form::text('stripe_account_id', null, ['class' => 'form-control', 'placeholder' => __('messages.stripe_account_id'), 'id' => 'stripe_account_id']) }}
+                                    </div>
+
+                                    <div class="form-group col-md-6">
+                                        {{ Form::label('stripe_verification_status', __('messages.stripe_verification_status'), ['class' => 'form-control-label']) }}
+                                        {{ Form::text('stripe_verification_status', null, ['class' => 'form-control', 'placeholder' => __('messages.stripe_verification_status'), 'id' => 'stripe_verification_status']) }}
+                                    </div>
+
+                                    <div class="form-group col-md-6">
+                                        {{ Form::label('stripe_first_name', __('messages.stripe_first_name'), ['class' => 'form-control-label']) }}
+                                        {{ Form::text('stripe_first_name', null, ['class' => 'form-control', 'placeholder' => __('messages.stripe_first_name'), 'id' => 'stripe_first_name']) }}
+                                    </div>
+
+                                    <div class="form-group col-md-6">
+                                        {{ Form::label('stripe_last_name', __('messages.stripe_last_name'), ['class' => 'form-control-label']) }}
+                                        {{ Form::text('stripe_last_name', null, ['class' => 'form-control', 'placeholder' => __('messages.stripe_last_name'), 'id' => 'stripe_last_name']) }}
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ __('messages.stripe_details_help') }}</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <div class="form-group col-md-6">
                                 <div class="custom-control custom-switch custom-control-inline ">
                                     {{ Form::checkbox('is_featured', $providerdata->is_featured, null, ['class' => 'custom-control-input' , 'id' => 'is_featured' ]) }}

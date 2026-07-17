@@ -83,6 +83,39 @@
                                             <span class="contact-info-text">{{ !empty($providerdata->address) ?$providerdata->address : '-' }}</span>
                                         </li>
                                     </ul>
+
+                                    <h5 class="mt-4 mb-2">{{ __('messages.stripe_account_details') }}</h5>
+                                    <ul class="contact-list">
+                                        <li>
+                                            <i class="ri-bank-card-line"></i>
+                                            <span class="contact-info-text">
+                                                {{ __('messages.stripe_account_id') }}:
+                                                <strong>{{ !empty($providerdata->stripe_account_id) ? $providerdata->stripe_account_id : '-' }}</strong>
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <i class="ri-shield-check-line"></i>
+                                            <span class="contact-info-text">
+                                                {{ __('messages.stripe_verification_status') }}:
+                                                @if($providerdata->stripe_verification_status == 'verified')
+                                                    <span class="badge badge-success">{{ __('messages.stripe_status_verified') }}</span>
+                                                @elseif($providerdata->stripe_verification_status == 'restricted')
+                                                    <span class="badge badge-danger">{{ __('messages.stripe_status_restricted') }}</span>
+                                                @elseif($providerdata->stripe_verification_status == 'pending')
+                                                    <span class="badge badge-warning">{{ __('messages.stripe_status_pending') }}</span>
+                                                @else
+                                                    <strong>-</strong>
+                                                @endif
+                                            </span>
+                                        </li>
+                                        <li>
+                                            <i class="ri-user-line"></i>
+                                            <span class="contact-info-text">
+                                                {{ __('messages.stripe_name') }}:
+                                                <strong>{{ trim($providerdata->stripe_first_name . ' ' . $providerdata->stripe_last_name) ?: '-' }}</strong>
+                                            </span>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>

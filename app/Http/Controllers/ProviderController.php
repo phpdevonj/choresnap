@@ -163,6 +163,11 @@ class ProviderController extends Controller {
         if ($providerdata == null) {
             $pageTitle = __('messages.add_button_form', ['form' => __('messages.provider')]);
             $providerdata = new User;
+        } else {
+            // Pull the latest Stripe details so the admin always edits current
+            // values (Stripe can change them after onboarding, with no cron).
+            refreshStripeAccountDetails($providerdata);
+            $providerdata = $providerdata->fresh();
         }
 
         return view('provider.create', compact('pageTitle', 'providerdata', 'auth_user'));
@@ -263,6 +268,12 @@ class ProviderController extends Controller {
     public function show($id) {
         $auth_user = authSession();
         $providerdata = User::with('providerDocument', 'booking')->where('user_type', 'provider')->where('id', $id)->first();
+
+        // Pull the latest Stripe details on view so they are always current.
+        if ($providerdata) {
+            refreshStripeAccountDetails($providerdata);
+            $providerdata->refresh();
+        }
 
         $data = Booking::where('provider_id', $id)->selectRaw(
             'COUNT(CASE WHEN status = "pending" THEN "pending" END) AS pendingStatusCount,
