@@ -568,7 +568,14 @@ trait NotificationTrait {
             $notification_data['service_amount'] = $serviceAmount;
 
 
-            $notification_data['venue_address'] = $booking->address;
+            // For "online" (my_address) services no venue address is captured
+            // on the booking; the location is the provider's own address, so
+            // pull it from there. "on_site" services keep the booking address.
+            if (isset($booking->service) && $booking->service->visit_type === 'online') {
+                $notification_data['venue_address'] = optional($booking->provider)->address ?: $booking->address;
+            } else {
+                $notification_data['venue_address'] = $booking->address;
+            }
             $notification_data['check_booking_type'] = 'booking';
 
             $duration = '';
