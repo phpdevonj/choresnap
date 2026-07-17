@@ -69,7 +69,7 @@ class ServiceDetailResource extends JsonResource
             'attchment_extension' => $extention,
             'deleted_at' => $this->deleted_at,
             'is_slot'           => $this->is_slot,
-            'slots'              => getServiceTimeSlot($this->provider_id ),
+            'slots'              => getServiceTimeSlot($this->provider_id, request('date')),
             'servicePackage'    => ServicePackageResource::collection(ServicePackage::whereIn('id',$this->servicePackage->pluck('service_package_id'))->where('status',1)->get()),
             'visit_type'           => $this->visit_type,
             'is_enable_advance_payment' => $this->is_enable_advance_payment,
