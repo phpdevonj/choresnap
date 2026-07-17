@@ -1406,7 +1406,7 @@ function sendNotification($type, $user, $data) {
 
 }
 
-function getServiceTimeSlot($provider_id) {
+function getServiceTimeSlot($provider_id, $date = null) {
     $sitesetup = App\Models\Setting::where('type', 'site-setup')->where('key', 'site-setup')->first();
     $admin = json_decode($sitesetup->value);
     date_default_timezone_set($admin->time_zone ?? 'UTC');
@@ -1414,6 +1414,11 @@ function getServiceTimeSlot($provider_id) {
     $current_time = \Carbon\Carbon::now();
     $time = $current_time->toTimeString();
     $current_day = strtolower(date('D'));
+
+    // Past slots are only hidden when the requested date is today. This returns
+    // a weekly template, so without this guard a future date that falls on the
+    // same weekday as today was wrongly trimmed to "remaining today".
+    $isToday = !empty($date) && date('Y-m-d', strtotime($date)) === date('Y-m-d');
 
     $days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
@@ -1432,7 +1437,7 @@ function getServiceTimeSlot($provider_id) {
     foreach ($days as $value) {
         $slot = $providerSlots->where('days', $value);
 
-        if ($current_day === $value) {
+        if ($isToday && $current_day === $value) {
             $slot = $slot->where('start_at', '>', $time);
         }
 
