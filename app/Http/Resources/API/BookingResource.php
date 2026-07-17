@@ -26,7 +26,11 @@ class BookingResource extends JsonResource
         $datetime = json_decode($sitesetup->value);
         return [
             'id'                    => $this->id,
-            'address'               => $this->address,
+            // "online" (my_address) services carry no booking address; the
+            // location is the provider's own address in that case.
+            'address'               => (optional($this->service)->visit_type === 'online')
+                                        ? (optional($this->provider)->address ?: $this->address)
+                                        : $this->address,
             'customer_id'           => $this->customer_id,
             'service_id'            => $this->service_id,
             'provider_id'           => $this->provider_id,
