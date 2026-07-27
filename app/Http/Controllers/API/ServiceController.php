@@ -430,8 +430,33 @@ class ServiceController extends Controller {
             ->get();
 
         $data = $bookings->map(function ($booking) {
-            $duration_diff = $booking->duration_diff;
-            if ($duration_diff == 0 && $booking->service) {
+            // OLD CODE: slot blocking used the runtime `duration_diff`, which
+            // accumulates on every pause (hold)/resume/complete. That made a
+            // 1-hour service block more and more slots the more it was paused.
+            // Kept commented in case this behaviour needs to be restored later.
+            // $duration_diff = $booking->duration_diff;
+            // if ($duration_diff == 0 && $booking->service) {
+            //     if ($booking->service->type === 'hourly') {
+            //         $duration_diff = ($booking->quantity > 0 ? $booking->quantity : 1) * 60;
+            //     } else if ($booking->service->duration) {
+            //         $durationParts = explode(':', $booking->service->duration);
+            //         if (count($durationParts) >= 2) {
+            //             $duration_diff = (int)$durationParts[0] * 60 + (int)$durationParts[1];
+            //         } else {
+            //             $duration_diff = (int)$booking->service->duration * 60;
+            //         }
+            //
+            //         if ($booking->quantity > 1) {
+            //             $duration_diff = $duration_diff * $booking->quantity;
+            //         }
+            //     }
+            // }
+
+            // NEW CODE: always use the service's scheduled (booked) duration so
+            // slot availability reflects the originally booked time (e.g. 1 hour)
+            // and never grows because of pause/resume.
+            $duration_diff = 0;
+            if ($booking->service) {
                 if ($booking->service->type === 'hourly') {
                     $duration_diff = ($booking->quantity > 0 ? $booking->quantity : 1) * 60;
                 } else if ($booking->service->duration) {
@@ -447,6 +472,7 @@ class ServiceController extends Controller {
                     }
                 }
             }
+
             return [
                 'date' => $booking->date,
                 'duration_diff' => (string)$duration_diff
