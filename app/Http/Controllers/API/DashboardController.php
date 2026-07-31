@@ -285,7 +285,7 @@ class DashboardController extends Controller {
             'today_cash' => today_cash_total(auth()->user()->id, Carbon::today(), Carbon::today()),
             'service' => $service,
             'handyman' => $handyman,
-            'total_revenue' => (float)$providerEarning,
+            'total_revenue' => round((float)$providerEarning, 2),
             'monthly_revenue' => $data,
             'commission' => $commission,
             'notification_unread_count' => $notification,
