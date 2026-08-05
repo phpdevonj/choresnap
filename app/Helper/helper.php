@@ -1525,15 +1525,28 @@ function today_cash_total($user_id, $to = '', $from = '', $type = '') {
     }
 
     if (auth()->user()->hasAnyRole(['provider'])) {
-        $amount = \App\Models\PaymentHistory::where('receiver_id', $user_id)
-            ->where('action', 'handyman_send_provider')
-            ->where(function ($query) use ($from, $to) {
-                $query->where('status', 'pending_by_admin')
-                    ->orWhere('status', 'approved_by_provider');
-            })
-            ->whereDate('datetime', '>=', $from)
-            ->whereDate('datetime', '<=', $to)
-            ->sum('total_amount');
+        // OLD CODE: only counted cash-flow PaymentHistory (created when a booking
+        // completed with payment_status 'pending_by_admin'), so online / advance
+        // paid bookings never appeared here and today_cash stayed 0 for them.
+        // Kept commented in case this behaviour needs to be restored later.
+        // $amount = \App\Models\PaymentHistory::where('receiver_id', $user_id)
+        //     ->where('action', 'handyman_send_provider')
+        //     ->where(function ($query) use ($from, $to) {
+        //         $query->where('status', 'pending_by_admin')
+        //             ->orWhere('status', 'approved_by_provider');
+        //     })
+        //     ->whereDate('datetime', '>=', $from)
+        //     ->whereDate('datetime', '<=', $to)
+        //     ->sum('total_amount');
+
+        // NEW CODE: today's completed earnings for the provider (cash + online).
+        // ProviderPayout is created on every completion, so it covers all
+        // payment types, not just cash.
+        $amount = \App\Models\ProviderPayout::where('provider_id', $user_id)
+            ->whereDate('created_at', '>=', $from)
+            ->whereDate('created_at', '<=', $to)
+            ->sum('amount');
+        $amount = round((float) $amount, 2);
     }
     return $amount;
 }
