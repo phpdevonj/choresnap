@@ -104,6 +104,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('remove-file', [App\Http\Controllers\HomeController::class, 'removeFile']);
     Route::get('logout', [API\User\UserController::class, 'logout']);
     Route::post('save-payment', [API\PaymentController::class, 'savePayment']);
+    Route::post('payment-failed', [API\PaymentController::class, 'markPaymentFailed']);
 
     Route::get('payment-list', [API\PaymentController::class, 'paymentList']);
     Route::post('transfer-payment', [API\PaymentController::class, 'transferPayment']);

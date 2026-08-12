@@ -109,6 +109,48 @@ class PaymentController extends Controller
         return comman_message_response($message,$status_code);
     }
 
+    /**
+     * Mark a payment as failed when the customer cancels/abandons the payment
+     * flow on the app (e.g. Stripe FailureCode.Canceled). Stripe does not send
+     * a reliable webhook for a user-cancel, so the app calls this on the cancel
+     * signal. Also cancels the booking so the reserved slot is released.
+     *
+     * POST /api/payment-failed  { booking_id, payment_id? }
+     */
+    public function markPaymentFailed(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required',
+        ]);
+
+        $payment = Payment::where('booking_id', $request->booking_id)
+            ->when($request->payment_id, function ($q) use ($request) {
+                $q->where('id', $request->payment_id);
+            })
+            ->latest('id')
+            ->first();
+
+        if (!$payment) {
+            return comman_message_response(__('messages.record_not_found'), 404);
+        }
+
+        // Guard against a race: never overwrite an already-completed payment.
+        if (in_array($payment->payment_status, ['paid', 'advanced_paid'])) {
+            return comman_message_response(__('messages.update_form', ['form' => __('messages.payment')]));
+        }
+
+        $payment->update(['payment_status' => 'failed']);
+
+        // Cancel the abandoned booking so the slot is freed and data stays clean.
+        $booking = Booking::find($payment->booking_id);
+        if ($booking && !in_array($booking->status, ['completed', 'cancelled'])) {
+            $booking->status = 'cancelled';
+            $booking->save();
+        }
+
+        return comman_message_response(__('messages.update_form', ['form' => __('messages.payment')]));
+    }
+
     public function paymentList(Request $request)
     {
         $payment = Payment::myPayment()->with('booking')
