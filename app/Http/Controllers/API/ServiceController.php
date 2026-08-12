@@ -426,7 +426,17 @@ class ServiceController extends Controller {
             ->where(['provider_id' => $providerId])
             ->whereBetween('date', [$startDate, $endDate])
             ->whereNotIn('status', ['cancelled', 'rejected'])
-            ->whereHas('payment') // payments table mein entry hogi tabhi slot block hoga
+            // OLD CODE: blocked the slot as soon as ANY payment row existed.
+            // iDEAL/online creates a 'pending' payment row BEFORE the customer
+            // actually pays, so a cancelled/abandoned iDEAL payment left the
+            // slot blocked forever. Kept commented in case of revert.
+            // ->whereHas('payment') // payments table mein entry hogi tabhi slot block hoga
+            // NEW CODE: only block the slot when the payment is actually
+            // completed (paid / advanced_paid). Pending / failed / refunded
+            // payments no longer reserve the slot.
+            ->whereHas('payment', function ($q) {
+                $q->whereIn('payment_status', ['paid', 'advanced_paid']);
+            })
             ->get();
 
         $data = $bookings->map(function ($booking) {
