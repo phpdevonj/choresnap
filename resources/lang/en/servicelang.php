@@ -60,4 +60,8 @@ return array (
   'car_detailing' => 'Car detailing',
   'hard_drive' => 'Hard Drive',
   'huis_schoonmaken' => 'Huis Schoonmaken',
+  'katten_oppas' => 'Katten Oppas',
+  'airbnb_schoonmaak_dienst' => 'Airbnb Schoonmaak Dienst',
+  'bank_reining' => 'Bank Reining',
+  'pet_sitting' => 'Pet sitting',
 );
