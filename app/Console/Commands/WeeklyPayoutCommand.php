@@ -6,8 +6,8 @@ use Illuminate\Console\Command;
 use Stripe\Stripe;
 use Stripe\Transfer;
 use App\Models\ProviderPayout; // Or your model
+use App\Models\Payment;
 use App\Models\PaymentGateway;
-use App\Models\HandymanPayout; // Or your model
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -104,30 +104,36 @@ class WeeklyPayoutCommand extends Command
             if ($dryRun) {
                 $account = $provider->providers->stripe_account_id ?? null;
                 $mode = 'no account';
+                $charge = null;
                 if ($account) {
                     $mode = 'SKIP (not live)';
                     try {
                         Stripe::setApiKey($secretKey);
                         \Stripe\Account::retrieve($account);
                         $mode = 'LIVE -> would pay';
+                        $charge = $this->resolveCharge($provider);
                     } catch (\Exception $e) {
                         // stays a skip
                     }
                 }
                 $this->line(sprintf(
-                    '  #%s provider=%s amount=%s %s destination=%s  [%s]',
+                    '  #%s provider=%s amount=%s %s destination=%s  [%s]%s',
                     $provider->id,
                     $provider->provider_id,
                     $provider->amount,
-                    $provider->providers->country->currency_code ?? 'EUR',
+                    $charge['currency'] ?? ($provider->providers->country->currency_code ?: 'EUR'),
                     $account ?? '(MISSING)',
-                    $mode
+                    $mode,
+                    $mode === 'LIVE -> would pay'
+                        ? (isset($charge['id'])
+                            ? ' funded by ' . $charge['id']
+                            : ' WARNING: no charge found, would draw on platform balance')
+                        : ''
                 ));
                 continue;
             }
 
-            $amount = $provider->amount * 100; // cents
-            $currency = $provider->providers->country->currency_code ?? 'EUR';
+            $amount = (int) round($provider->amount * 100); // cents
             $connectedAccount = $provider->providers->stripe_account_id;
 
             if (empty($connectedAccount)) {
@@ -171,100 +177,180 @@ class WeeklyPayoutCommand extends Command
                 continue;
             }
 
+            // Fund the transfer from the booking's own charge. Without this the
+            // transfer draws on the platform's general balance, which Stripe has
+            // usually already paid out to the platform bank account by the time
+            // this runs - the reason these transfers were failing.
+            $charge = $this->resolveCharge($provider);
+
+            // The currency has to match the charge. It used to be taken from the
+            // provider's country, so any provider outside the eurozone produced a
+            // currency the platform holds no balance in and could never be paid.
+            $currency = $charge['currency'] ?? null;
+            if (!$currency) {
+                $currency = $provider->providers->country->currency_code ?? null;
+                $currency = $currency !== '' && $currency !== null ? $currency : 'EUR';
+            }
+
             try {
-                $transfer =  Transfer::create([
+                $transferPayload = [
                     'amount' => $amount,
-                    'currency' => $currency,
+                    'currency' => strtolower($currency),
                     'destination' => $connectedAccount,
-                    // 'transfer_group' => 'ORDER_' . now()->format('Y-m-d'),
                     'metadata' => [
-                        // 'order_id' => $order->id, // Order ID
                         'disbursement_id' => $provider->id, // Disbursement ID
+                        'booking_id' => $provider->booking_id,
                     ],
-                ]);
+                ];
+                if (!empty($charge['id'])) {
+                    $transferPayload['source_transaction'] = $charge['id'];
+                } else {
+                    $transferPayload['transfer_group'] = 'PAYOUT_' . $provider->id;
+                }
+
+                $transfer = Transfer::create($transferPayload);
                 Log::info("Transfer created successfully", [
                     'provider_id' => $provider->id,
                     'transfer_id' => $transfer->id,
                     'amount' => $amount,
-                    'currency' => $currency
+                    'currency' => $currency,
+                    'source_transaction' => $charge['id'] ?? null,
                 ]);
 
                 $provider->status = 'transferred';
+                $provider->stripe_transfer_id = $transfer->id;
+                $provider->failure_reason = null;
                 $provider->save();
 
-                $payout = \Stripe\Payout::create([
-                    'amount' => $amount,
-                    'currency' => $currency,
-                    'method' => 'standard', // Use 'instant' if available
-                    'metadata' => [
-                    //   'order_id' => $order->id,
-                      'disbursement_id' => $provider->id
-                    ],
-                  ], [
-                    'stripe_account' => $connectedAccount, //  Use `stripe_account` instead of `destination`
-                  ]);
-                  Log::info("Driver payout successful", [
-                  
+                // Connected accounts on an automatic schedule are paid out by
+                // Stripe itself; creating a manual payout on top of that fails and
+                // used to strand the row in 'transferred' forever.
+                $payout = null;
+                if ($this->payoutScheduleIsManual($connectedAccount)) {
+                    $payout = \Stripe\Payout::create([
+                        'amount' => $amount,
+                        'currency' => strtolower($currency),
+                        'method' => 'standard',
+                        'metadata' => [
+                            'disbursement_id' => $provider->id,
+                        ],
+                    ], [
+                        'stripe_account' => $connectedAccount,
+                    ]);
+                    $provider->stripe_payout_id = $payout->id;
+                }
+
+                Log::info("Provider payout successful", [
+                    'provider_payout_id' => $provider->id,
                     'amount' => $amount,
                     'currency' => $currency,
                     'transfer_id' => $transfer->id,
-                    'payout_id' => $payout->id,
-                    'transfer_status' => 'created',
-                    'payout_status' => $payout->status
+                    'payout_id' => $payout->id ?? '(automatic schedule)',
+                    'payout_status' => $payout->status ?? 'handled by Stripe',
                 ]);
-                  $provider->status = 'completed';
-                  $provider->paid_date =  Carbon::createFromTimestamp($payout->created);
-                  $provider->save();
-                // $this->info("Transferred $amount $currency to $connectedAccount");
-            } catch (\Exception $e) {
-                \Log::error('Transfer failed: ' . $e->getMessage());
-                $this->error('Transfer failed for ' . $e->getMessage());
+
+                $provider->status = 'completed';
+                $provider->paid_date = $payout
+                    ? Carbon::createFromTimestamp($payout->created)
+                    : Carbon::createFromTimestamp($transfer->created);
+                $provider->save();
+
+                $this->info("  #{$provider->id} transferred {$provider->amount} {$currency} to {$connectedAccount}");
+            } catch (\Throwable $e) {
+                // Was \Exception, which let a PHP Error abort the whole run and
+                // skip every remaining provider.
+                Log::error('Transfer failed: ' . $e->getMessage(), [
+                    'provider_payout_id' => $provider->id,
+                    'stripe_account_id' => $connectedAccount,
+                    'amount' => $amount,
+                    'currency' => $currency,
+                ]);
+                $provider->failure_reason = substr($e->getMessage(), 0, 1000);
+                $provider->save();
+                $this->error("  #{$provider->id} transfer failed: " . $e->getMessage());
             }
         }
 
-        // $handyman = HandymanPayout::where('paid_date','')->get();
+        return 0;
+    }
 
-        // foreach ($handyman as $disbursement) {
-        //     $amount = $disbursement->amount * 100; // cents
-        //     // $currency = $detail->delivery_man->restaurant->currency;
-        //     $connectedAccount = $disbursement->handymans->stripe_account_id;
-        //     $account = \Stripe\Account::retrieve($connectedAccount);
-        //     $currency = $account->default_currency;
-        //     try {
-        //         \Stripe\Transfer::create([
-        //             'amount' => $amount,
-        //             'currency' => $currency,
-        //             'destination' => $connectedAccount,
-        //             // 'transfer_group' => 'ORDER_' . now()->format('Y-m-d'),
-        //             'metadata' => [
-        //                 // 'order_id' => $order->id, // Order ID
-        //                 'disbursement_id' => $disbursement->id, // Disbursement ID
-        //             ],
-        //         ]);
+    /**
+     * Find the Stripe charge that funded this payout, so the transfer can be
+     * drawn from it rather than from the platform's general balance.
+     *
+     * @return array{id: string, currency: string}|null
+     */
+    private function resolveCharge(ProviderPayout $providerPayout)
+    {
+        if (empty($providerPayout->booking_id)) {
+            return null;
+        }
 
-            
+        $payment = Payment::where('booking_id', $providerPayout->booking_id)
+            ->whereIn('payment_status', ['paid', 'advanced_paid'])
+            ->whereNotNull('txn_id')
+            ->orderByDesc('id')
+            ->first();
 
-        //         $payout = \Stripe\Payout::create([
-        //             'amount' => $amount,
-        //             'currency' => $currency,
-        //             'method' => 'standard', // Use 'instant' if available
-        //             'metadata' => [
-        //             //   'order_id' => $order->id,
-        //               'disbursement_id' => $disbursement->id
-        //             ],
-        //           ], [
-        //             'stripe_account' => $connectedAccount, //  Use `stripe_account` instead of `destination`
-        //           ]);
+        if (!$payment) {
+            return null;
+        }
 
-        //           $disbursement->paid_date = Carbon::createFromTimestamp($payout->created);;
-        //           $disbursement->save();
-        //         // $this->info("Transferred $amount $currency to $connectedAccount");
-        //     } catch (\Exception $e) {
-        //         \Log::error('Transfer failed: ' . $e->getMessage());
-        //         $this->error('Transfer failed for ' . $e->getMessage());
-        //     }
-        // }
+        try {
+            $txnId = $payment->txn_id;
 
+            // Older rows stored a Checkout Session id instead of a PaymentIntent.
+            if (strpos($txnId, 'cs_') === 0) {
+                $session = \Stripe\Checkout\Session::retrieve($txnId);
+                $txnId = $session->payment_intent;
+            }
 
+            if (strpos($txnId, 'pi_') === 0) {
+                $intent = \Stripe\PaymentIntent::retrieve($txnId);
+                $chargeId = $intent->latest_charge;
+                if (!$chargeId) {
+                    return null;
+                }
+                $chargeObject = \Stripe\Charge::retrieve($chargeId);
+            } else {
+                $chargeObject = \Stripe\Charge::retrieve($txnId);
+            }
+
+            // A charge that is refunded or not yet captured cannot fund a transfer.
+            if (!$chargeObject->captured || $chargeObject->refunded) {
+                Log::warning('Charge cannot fund a transfer', [
+                    'provider_payout_id' => $providerPayout->id,
+                    'charge_id' => $chargeObject->id,
+                    'captured' => $chargeObject->captured,
+                    'refunded' => $chargeObject->refunded,
+                ]);
+                return null;
+            }
+
+            return ['id' => $chargeObject->id, 'currency' => $chargeObject->currency];
+        } catch (\Throwable $e) {
+            Log::warning('Could not resolve the charge for a payout: ' . $e->getMessage(), [
+                'provider_payout_id' => $providerPayout->id,
+                'booking_id' => $providerPayout->booking_id,
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Stripe pays out automatically unless the connected account is explicitly on
+     * a manual schedule, in which case the payout has to be created by hand.
+     */
+    private function payoutScheduleIsManual($connectedAccount)
+    {
+        try {
+            $account = \Stripe\Account::retrieve($connectedAccount);
+            return ($account->settings->payouts->schedule->interval ?? null) === 'manual';
+        } catch (\Throwable $e) {
+            Log::warning('Could not read the payout schedule, leaving it to Stripe: ' . $e->getMessage(), [
+                'stripe_account_id' => $connectedAccount,
+            ]);
+            return false;
+        }
     }
 }

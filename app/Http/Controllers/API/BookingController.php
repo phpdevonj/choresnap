@@ -268,15 +268,24 @@ class BookingController extends Controller {
             // $provider_earning_value = number_format((float)$provider_earning['number_format'], 2, '.', '');
 
             // provider payout details added:
-            $provider = new ProviderPayout();
-            $provider->id = 1000 + ProviderPayout::count() + 1;
-            $provider->provider_id = $bookingdata->provider_id;
-            $provider->description = 'Provider';
-            $provider->payment_method = 'bank';
-            $provider->amount = (double)$bookingdata->final_sub_total;
-            $provider->paid_date = null;
-            $provider->status = 'Pending';
-            $provider->save();
+            // Guarded on booking_id because this endpoint can be called more than
+            // once for the same booking, which previously inserted a duplicate
+            // payout row every time.
+            $existingPayout = ProviderPayout::where('booking_id', $bookingdata->id)->exists();
+
+            if (!$existingPayout) {
+                $provider = new ProviderPayout();
+                // id was assigned manually here (1000 + count + 1), which collides
+                // as soon as any row is deleted. Left to auto-increment instead.
+                $provider->provider_id = $bookingdata->provider_id;
+                $provider->booking_id = $bookingdata->id;
+                $provider->description = 'Provider';
+                $provider->payment_method = 'bank';
+                $provider->amount = (double)$bookingdata->final_sub_total;
+                $provider->paid_date = null;
+                $provider->status = 'Pending';
+                $provider->save();
+            }
         }
 
         //OLD CODE
