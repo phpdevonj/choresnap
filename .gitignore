@@ -22,3 +22,8 @@ branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
 .gitignore
+
+# Generated at runtime from the database - never commit these
+resources/lang/*/categorylang.php
+resources/lang/*/servicelang.php
+resources/lang/*/subcategorylang.php
