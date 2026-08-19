@@ -112,6 +112,9 @@ class WeeklyPayoutCommand extends Command
                         \Stripe\Account::retrieve($account);
                         $mode = 'LIVE -> would pay';
                         $charge = $this->resolveCharge($provider);
+                        if ($charge['status'] === 'unusable') {
+                            $mode = 'SKIP (unusable charge)';
+                        }
                     } catch (\Exception $e) {
                         // stays a skip
                     }
@@ -125,9 +128,7 @@ class WeeklyPayoutCommand extends Command
                     $account ?? '(MISSING)',
                     $mode,
                     $mode === 'LIVE -> would pay'
-                        ? (isset($charge['id'])
-                            ? ' funded by ' . $charge['id']
-                            : ' WARNING: no charge found, would draw on platform balance')
+                        ? $this->dryRunChargeNote($charge)
                         : ''
                 ));
                 continue;
@@ -182,6 +183,29 @@ class WeeklyPayoutCommand extends Command
             // usually already paid out to the platform bank account by the time
             // this runs - the reason these transfers were failing.
             $charge = $this->resolveCharge($provider);
+
+            // A booking whose payment exists but cannot fund a transfer (a
+            // test-mode payment, a refund) must never fall through to the
+            // platform balance - that would pay the provider real money for a
+            // booking that collected none.
+            if ($charge['status'] === 'unusable') {
+                Log::warning('Payout skipped: ' . $charge['reason'], [
+                    'provider_payout_id' => $provider->id,
+                    'booking_id' => $provider->booking_id,
+                ]);
+                $provider->failure_reason = substr($charge['reason'], 0, 1000);
+                $provider->save();
+                $this->warn("  #{$provider->id} skipped: {$charge['reason']}");
+                continue;
+            }
+
+            if ($charge['status'] === 'no_link') {
+                Log::warning('Payout has no charge to draw on, using the platform balance', [
+                    'provider_payout_id' => $provider->id,
+                    'reason' => $charge['reason'],
+                ]);
+                $this->warn("  #{$provider->id} no linked charge ({$charge['reason']}) - drawing on the platform balance");
+            }
 
             // The currency has to match the charge. It used to be taken from the
             // provider's country, so any provider outside the eurozone produced a
@@ -280,10 +304,22 @@ class WeeklyPayoutCommand extends Command
      *
      * @return array{id: string, currency: string}|null
      */
+    /**
+     * One-line explanation of how a dry-run row would be funded.
+     */
+    private function dryRunChargeNote($charge)
+    {
+        if (($charge['status'] ?? null) === 'ok') {
+            return ' funded by ' . $charge['id'];
+        }
+
+        return ' WARNING: no usable charge (' . ($charge['reason'] ?? 'unknown') . ')';
+    }
+
     private function resolveCharge(ProviderPayout $providerPayout)
     {
         if (empty($providerPayout->booking_id)) {
-            return null;
+            return ['status' => 'no_link', 'reason' => 'payout row has no booking_id'];
         }
 
         $payment = Payment::where('booking_id', $providerPayout->booking_id)
@@ -293,7 +329,7 @@ class WeeklyPayoutCommand extends Command
             ->first();
 
         if (!$payment) {
-            return null;
+            return ['status' => 'no_link', 'reason' => 'no settled payment found for the booking'];
         }
 
         try {
@@ -309,7 +345,7 @@ class WeeklyPayoutCommand extends Command
                 $intent = \Stripe\PaymentIntent::retrieve($txnId);
                 $chargeId = $intent->latest_charge;
                 if (!$chargeId) {
-                    return null;
+                    return ['status' => 'unusable', 'reason' => 'payment intent has no charge'];
                 }
                 $chargeObject = \Stripe\Charge::retrieve($chargeId);
             } else {
@@ -318,22 +354,25 @@ class WeeklyPayoutCommand extends Command
 
             // A charge that is refunded or not yet captured cannot fund a transfer.
             if (!$chargeObject->captured || $chargeObject->refunded) {
-                Log::warning('Charge cannot fund a transfer', [
-                    'provider_payout_id' => $providerPayout->id,
-                    'charge_id' => $chargeObject->id,
-                    'captured' => $chargeObject->captured,
-                    'refunded' => $chargeObject->refunded,
-                ]);
-                return null;
+                return [
+                    'status' => 'unusable',
+                    'reason' => $chargeObject->refunded ? 'charge was refunded' : 'charge is not captured',
+                ];
             }
 
-            return ['id' => $chargeObject->id, 'currency' => $chargeObject->currency];
+            return [
+                'status' => 'ok',
+                'id' => $chargeObject->id,
+                'currency' => $chargeObject->currency,
+            ];
         } catch (\Throwable $e) {
-            Log::warning('Could not resolve the charge for a payout: ' . $e->getMessage(), [
-                'provider_payout_id' => $providerPayout->id,
-                'booking_id' => $providerPayout->booking_id,
-            ]);
-            return null;
+            // The live key cannot see a test-mode payment. Treating that as
+            // "just use the platform balance" would pay the provider real money
+            // for a booking that never collected any, so it is refused instead.
+            return [
+                'status' => 'unusable',
+                'reason' => 'payment is not reachable with the live key (test-mode payment?): ' . $e->getMessage(),
+            ];
         }
     }
 
