@@ -20,7 +20,13 @@ class PaymentResource extends JsonResource
             'id' => $this->id,
             'booking_id' => $this->booking_id,
             'customer_id'   => $this->customer_id,
-            'total_amount'  => $this->total_amount,
+            // Was the amount the customer paid, kept here for reference:
+            // 'total_amount'  => $this->total_amount,
+            // The app is live and its response shape cannot change, so the
+            // provider's share is returned under the existing key instead.
+            // Customers still get the original figure - they have no provider
+            // amount, and an empty value would break their payment list.
+            'total_amount'  => $providerAmount ?? $this->total_amount,
             'payment_status'=> $this->payment_status,
             'payment_type'  => $this->payment_type,
             'payment_method'=> $this->payment_type,
@@ -34,9 +40,7 @@ class PaymentResource extends JsonResource
             'booking_package'              => isset($this->booking) ? new BookingPackageResource($this->booking->bookingPackage) : null,
             'date'          => $this->datetime,
             'advance_paid_amount'  => optional($this->booking)->advance_paid_amount == null ? 0:(double) optional($this->booking)->advance_paid_amount,
-            'txn_id' => $this->txn_id,
-            'provider_amount' => $providerAmount,
-            'provider_amount_format' => $providerAmount === null ? null : getPriceFormat($providerAmount),
+            'txn_id' => $this->txn_id
 
         ];
     }
