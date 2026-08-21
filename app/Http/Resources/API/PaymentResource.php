@@ -14,6 +14,8 @@ class PaymentResource extends JsonResource
      */
     public function toArray($request)
     {
+        $providerAmount = $this->providerAmount();
+
         return [
             'id' => $this->id,
             'booking_id' => $this->booking_id,
@@ -32,8 +34,30 @@ class PaymentResource extends JsonResource
             'booking_package'              => isset($this->booking) ? new BookingPackageResource($this->booking->bookingPackage) : null,
             'date'          => $this->datetime,
             'advance_paid_amount'  => optional($this->booking)->advance_paid_amount == null ? 0:(double) optional($this->booking)->advance_paid_amount,
-            'txn_id' => $this->txn_id
+            'txn_id' => $this->txn_id,
+            'provider_amount' => $providerAmount,
+            'provider_amount_format' => $providerAmount === null ? null : getPriceFormat($providerAmount),
 
         ];
+    }
+
+    /**
+     * What the provider is paid for this booking, which is the sub total after
+     * discount - the same figure the payout is created from.
+     *
+     * Only exposed to admins and the provider themselves: showing it to the
+     * customer would reveal the platform's margin on their own booking.
+     */
+    private function providerAmount()
+    {
+        $user = auth()->user();
+
+        if (!$user || !$user->hasAnyRole(['admin', 'demo_admin', 'provider'])) {
+            return null;
+        }
+
+        $subTotal = optional($this->booking)->final_sub_total;
+
+        return $subTotal === null ? null : (double) $subTotal;
     }
 }
