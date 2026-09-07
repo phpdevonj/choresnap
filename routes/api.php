@@ -145,7 +145,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('save-service-proof', [API\BookingController::class, 'uploadServiceProof']);
     Route::post('handyman-update-available-status', [API\User\UserController::class, 'handymanAvailable']);
     Route::post('delete-user-account', [API\User\UserController::class, 'deleteUserAccount']);
-    Route::post('delete-account', [API\User\UserController::class, 'deleteAccount']);
+    // Route::post('delete-account-old', [API\User\UserController::class, 'deleteAccount']);
+    Route::post('delete-account', [API\User\UserController::class, 'softDeleteAccount']);
 
     Route::post('save-post-job', [App\Http\Controllers\PostJobRequestController::class, 'store']);
     Route::post('post-job-delete/{id}', [App\Http\Controllers\PostJobRequestController::class, 'destroy']);

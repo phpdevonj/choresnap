@@ -1120,6 +1120,46 @@ class UserController extends Controller {
         return comman_message_response($message, 200);
     }
 
+    /**
+     * Same checks as deleteAccount, but the records are soft deleted so they can
+     * be restored and stay available for reporting on past bookings.
+     */
+    public function softDeleteAccount(Request $request) {
+        $user_id = \Auth::user()->id;
+        $user = User::where('id', $user_id)->first();
+        if ($user == null) {
+            $message = __('messages.user_not_found');
+            return comman_message_response($message, 400);
+        }
+        if ($user->user_type == 'provider') {
+            if ($user->providerPendingBooking()->count() > 0) {
+                $message = __('messages.pending_booking');
+                return comman_message_response($message, 400);
+            }
+            $user->providerService()->delete();
+            $user->providerPendingBooking()->delete();
+            $provider_handyman = User::where('provider_id', $user_id)->get();
+            foreach ($provider_handyman as $handyman) {
+                $handyman->provider_id = NULL;
+                $handyman->update();
+            }
+        } else {
+            if ($user->handymanPendingBooking()->count() > 0) {
+                $message = __('messages.pending_booking');
+                return comman_message_response($message, 400);
+            }
+            $user->handymanPendingBooking()->delete();
+        }
+
+        // Without this the app would keep a working token for an account that is
+        // no longer usable.
+        $user->tokens()->delete();
+        $user->delete();
+
+        $message = __('messages.msg_deleted', ['name' => __('messages.user')]);
+        return comman_message_response($message, 200);
+    }
+
     public function addUser(UserRequest $request) {
         $input = $request->all();
 
