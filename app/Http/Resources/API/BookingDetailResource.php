@@ -74,6 +74,11 @@ class BookingDetailResource extends JsonResource
             'final_sub_total'=> $this->final_sub_total,
             'final_discount_amount'=> $this->final_discount_amount,
             'final_coupon_discount_amount'=> $this->final_coupon_discount_amount,
+            // What the provider is paid: their price plus VAT. Sent ready made so
+            // the app displays it rather than working it out itself.
+            'provider_amount'     => \App\Support\BookingSplit::for($this->resource)->providerAmount(),
+            'provider_tax'        => \App\Support\BookingSplit::for($this->resource)->providerTax(),
+            'provider_tax_rate'   => \App\Support\BookingSplit::for($this->resource)->salesTaxRate(),
             'txn_id' => optional($this->payment)->txn_id,
             'BookingAddonService' => BookingServiceAddonResource::collection($this->bookingAddonService),
 
