@@ -42,9 +42,14 @@ class RecalculatePayoutVat extends Command
             $booking = $payout->booking;
 
             // Without a booking there is nothing to derive the VAT from, so the
-            // row is reported and left exactly as it is.
+            // row is reported and left exactly as it is. The two causes are worth
+            // separating: a row that was never linked needs the backfill, while a
+            // linked row whose booking has gone needs looking at by hand.
             if ($booking === null) {
-                $this->warn("  #{$payout->id} skipped: no linked booking (amount {$payout->amount})");
+                $reason = empty($payout->booking_id)
+                    ? 'booking_id is not set'
+                    : "booking {$payout->booking_id} no longer exists";
+                $this->warn("  #{$payout->id} skipped: {$reason} (amount {$payout->amount})");
                 $skipped++;
                 continue;
             }
