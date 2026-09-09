@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\API;
 
+use App\Support\BookingSplit;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PaymentResource extends JsonResource
@@ -46,8 +47,8 @@ class PaymentResource extends JsonResource
     }
 
     /**
-     * What the provider is paid for this booking, which is the sub total after
-     * discount - the same figure the payout is created from.
+     * What the provider is paid for this booking: their price plus VAT, the
+     * same figure the payout is created from.
      *
      * Only exposed to admins and the provider themselves: showing it to the
      * customer would reveal the platform's margin on their own booking.
@@ -60,8 +61,13 @@ class PaymentResource extends JsonResource
             return null;
         }
 
-        $subTotal = optional($this->booking)->final_sub_total;
+        $booking = $this->booking;
 
-        return $subTotal === null ? null : (double) $subTotal;
+        if ($booking === null || $booking->final_sub_total === null) {
+            return null;
+        }
+
+        // Tax inclusive: this is what the provider is actually paid.
+        return BookingSplit::for($booking)->providerAmount();
     }
 }

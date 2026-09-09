@@ -260,39 +260,38 @@
                         </tr>
                         @endif
                         @php
-                            $taxes = json_decode($bookingdata->tax);
-                            $serviceTax = collect($taxes)->firstWhere('title', 'Service Fee');
-                            $calculatedTax = 0;
-                            if ($serviceTax) {
-                                $calculatedTax = ($bookingdata->final_sub_total * $serviceTax->value) / 100;
-                            }
-                            $subTotalWithTax = $bookingdata->final_sub_total + $calculatedTax;
+                            // Same split as the invoice, from one shared calculation, so this
+                            // screen and the PDF can never disagree.
+                            $split = \App\Support\BookingSplit::for($bookingdata);
+                            // Kept for the grand total row below.
+                            $subTotalWithTax = $split->total();
                         @endphp
-                        @if($serviceTax)
+                        @if($split->salesTaxRate() > 0)
                         <tr>
-                            <td>{{__('messages.service_fee')}} ({{ $serviceTax->value }}%)</td>
-                            <td class="text-right text-danger">{{getPriceFormat($calculatedTax)}}</td>
+                            <td>{{__('messages.tax')}} ({{ $split->salesTaxRate() }}%)</td>
+                            <td class="text-right text-danger">{{getPriceFormat($split->providerTax())}}</td>
                         </tr>
                         @endif
                         <tr>
                             <td>{{__('messages.sub_total')}}</td>
-                            <td class="text-right text-danger">{{getPriceFormat($subTotalWithTax)}}</td>
+                            <td class="text-right text-danger">{{getPriceFormat($split->providerAmount())}}</td>
                         </tr>
-                        @php
-                            $taxes = json_decode($bookingdata->tax);
-                            $tax21 = collect($taxes)->firstWhere('title', 'Sales Tax');// Find the "Tax" item
-                            $calculatedTax21 = 0;
-                            if ($tax21) {
-                                $calculatedTax21 = ($subTotalWithTax * $tax21->value) / 100;
-                            }
-                            $subTotalWithTax = $subTotalWithTax + $calculatedTax21;
-                        @endphp
-                        @if($tax21)
+                        @if($split->serviceFeeRate() > 0)
                         <tr>
-                            <td>{{__('messages.tax')}} ({{ $tax21->value }}%)</td>
-                            <td class="text-right text-danger">{{getPriceFormat($calculatedTax21)}}</td>
+                            <td>{{__('messages.service_fee')}} ({{ $split->serviceFeeRate() }}%)</td>
+                            <td class="text-right text-danger">{{getPriceFormat($split->serviceFee())}}</td>
                         </tr>
                         @endif
+                        @if($split->salesTaxRate() > 0)
+                        <tr>
+                            <td>{{__('messages.tax')}} ({{ $split->salesTaxRate() }}%)</td>
+                            <td class="text-right text-danger">{{getPriceFormat($split->choresnapTax())}}</td>
+                        </tr>
+                        @endif
+                        <tr>
+                            <td>{{__('messages.sub_total')}}</td>
+                            <td class="text-right text-danger">{{getPriceFormat($split->choresnapAmount())}}</td>
+                        </tr>
 
                         <tr class="grand-total">
                             <td><strong>{{__('messages.total_amount')}}</strong></td>
