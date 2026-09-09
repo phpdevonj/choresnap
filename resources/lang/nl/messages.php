@@ -534,7 +534,7 @@
   'Price' => 'Prijs',
   'Qty' => 'Aantal',
   'Subtotal' => 'Subtotaal',
-  'Coupon_Discount' => 'Korting',
+  'Coupon_Discount' => 'Kortingscode',
   'Tax' => 'BTW',
   'Sub_Total' => 'Subtotaal',
   'Total_Payable' => 'Totaal te betalen',
