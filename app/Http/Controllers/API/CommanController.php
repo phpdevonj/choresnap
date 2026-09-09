@@ -284,6 +284,17 @@ class CommanController extends Controller
 
         $bookingdata = Booking::with('handymanAdded', 'payment', 'bookingExtraCharge')->where('id',$booking_id)->first();
 
+        if ($bookingdata === null) {
+            return comman_message_response(__('messages.booking_not_found'), 400);
+        }
+
+        // Any logged in user could previously ask for any booking id and have that
+        // invoice emailed anywhere, and booking ids run in sequence. Only the
+        // people on the booking may request it.
+        if (!$this->canAccessInvoice($bookingdata)) {
+            return comman_message_response(__('messages.action_is_unauthorized'), 403);
+        }
+
         $emailData['email'] = $request->email;
 
         $booking_service_name = $bookingdata->service->name ?? 'N/A';
@@ -309,6 +320,33 @@ class CommanController extends Controller
             return comman_message_response($messagedata);
         }
 
+    }
+
+    /**
+     * The customer, the provider, an assigned handyman or an admin may ask for a
+     * booking's invoice. Nobody else.
+     */
+    private function canAccessInvoice(Booking $booking): bool
+    {
+        $user = auth()->user();
+
+        if ($user === null) {
+            return false;
+        }
+
+        if ($user->hasAnyRole(['admin', 'demo_admin'])) {
+            return true;
+        }
+
+        if ((int) $booking->customer_id === (int) $user->id) {
+            return true;
+        }
+
+        if ((int) $booking->provider_id === (int) $user->id) {
+            return true;
+        }
+
+        return $booking->handymanAdded->contains('handyman_id', $user->id);
     }
     public function getBankList(Request $request){
         $user_id = $request->user_id;
