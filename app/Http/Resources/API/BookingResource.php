@@ -60,6 +60,11 @@ class BookingResource extends JsonResource
             'quantity'              => $this->quantity,
             'coupon_data'           => isset($this->couponAdded) ? $this->couponAdded : null,
             'total_amount'          => $this->total_amount,
+            // The provider's price plus VAT, so the bookings list can show what
+            // they receive instead of deriving it from price and discount.
+            'provider_amount'       => \App\Support\BookingSplit::for($this->resource)->providerAmount(),
+            'provider_tax'          => \App\Support\BookingSplit::for($this->resource)->providerTax(),
+            'provider_tax_rate'     => \App\Support\BookingSplit::for($this->resource)->salesTaxRate(),
             'total_rating'          => (float) number_format(max(optional($this->service)->serviceRating->avg('rating'),0), 2),
             'amount'                => $this->amount,
             'extra_charges'         => BookingChargesResource::collection($this->bookingExtraCharge),

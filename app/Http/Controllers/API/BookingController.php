@@ -33,6 +33,7 @@ use App\Http\Resources\API\PostJobRequestResource;
 use App\Models\BookingServiceAddonMapping;
 use App\Traits\NotificationTrait;
 use App\Models\ProviderPayout;
+use App\Support\BookingSplit;
 use App\Models\ProviderPayout as ProviderPayoutModel;
 
 class BookingController extends Controller {
@@ -281,7 +282,9 @@ class BookingController extends Controller {
                 $provider->booking_id = $bookingdata->id;
                 $provider->description = 'Provider';
                 $provider->payment_method = 'bank';
-                $provider->amount = (double)$bookingdata->final_sub_total;
+                // Providers are paid their price plus VAT and account for that VAT
+                // themselves, so the payout is the tax inclusive figure.
+                $provider->amount = BookingSplit::for($bookingdata)->providerAmount();
                 $provider->paid_date = null;
                 $provider->status = 'Pending';
                 $provider->save();
