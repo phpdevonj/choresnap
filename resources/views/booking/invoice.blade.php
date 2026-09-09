@@ -473,8 +473,8 @@
                                 <div class="text-muted">
                                     <h5 class="font-size-16 mb-3">{{__('messages.Billed_To')}}:</h5>
                                     <h5 class="c1 mb-3">{{optional($bookingdata->customer)->display_name ?? '-'}}</h5>
-                                    <p class="mb-0">{{ optional($bookingdata->customer)->contact_number ?? '-' }}</p>
-                                    <p class="mb-1">{{optional($bookingdata->customer)->email ?? '-' }}</p>
+                                    <h5 class="font-size-16 mb-3">{{__('messages.provider')}}:</h5>
+                                    <h5 class="c1 mb-0">{{optional($bookingdata->provider)->display_name ?? '-'}}</h5>
                                 </div>
                             </div>
                             <!-- end col -->
@@ -546,48 +546,47 @@
                                     <td style="width: 20%;">{{getPriceFormat($bookingdata->final_sub_total)}}</td>
                                 </tr>
                                 @php
-                                    $taxes = json_decode($bookingdata->tax);
-                                    $serviceTax = collect($taxes)->firstWhere('title', 'Service Fee');
-                                    $calculatedTax = 0;
-                                    if ($serviceTax) {
-                                        $calculatedTax = ($bookingdata->final_sub_total * $serviceTax->value) / 100;
-                                    }
-                                    $subTotalWithTax = $bookingdata->final_sub_total + $calculatedTax;
+                                    // Split into the provider's share and ChoreSnap's share, each with its
+                                    // own VAT line, so both parties can see what belongs to whom.
+                                    $split = \App\Support\BookingSplit::for($bookingdata);
+                                    // Kept for the extra charge calculation further down.
+                                    $subTotalWithTax = $split->total();
                                 @endphp
-                                @if($serviceTax)
+                                @if($split->salesTaxRate() > 0)
                                 <tr>
-                                    <td colspan="3"></td>   
-                                    <td >{{__('messages.service_fee')}}({{ $serviceTax->value }}%)</span> </td>
-                                    <td style="width: 20%;">{{getPriceFormat($calculatedTax)}}</td>
+                                    <td colspan="3"></td>
+                                    <td>{{__('messages.tax')}} ({{ $split->salesTaxRate() }}%)</td>
+                                    <td style="width: 20%;">{{getPriceFormat($split->providerTax())}}</td>
                                 </tr>
                                 @endif
                                 <tr>
-                                    <td colspan="3"></td>   
-                                    <td >{{__('messages.sub_total')}}</span> </td>
-                                    <td style="width: 20%;">{{getPriceFormat($subTotalWithTax)}}</td>
+                                    <td colspan="3"></td>
+                                    <td>{{__('messages.sub_total')}}</td>
+                                    <td style="width: 20%;">{{getPriceFormat($split->providerAmount())}}</td>
                                 </tr>
-                                @php
-                                    $taxes = json_decode($bookingdata->tax);
-                                    $tax21 = collect($taxes)->firstWhere('title', 'Sales Tax');// Find the "Tax" item
-                                    $calculatedTax21 = 0;
-                                    if ($tax21) {
-                                        $calculatedTax21 = ($subTotalWithTax * $tax21->value) / 100;
-                                    }
-                                    $subTotalWithTax = $subTotalWithTax + $calculatedTax21;
-                                @endphp
-                                @if($tax21)
+                                @if($split->serviceFeeRate() > 0)
                                 <tr>
-                                    <td colspan="3"></td>   
-                                    <td >{{__('messages.tax')}} ({{ $tax21->value }}%)</span> </td>
-                                    
-                                    <td style="width: 20%;">{{!empty($calculatedTax21) ? getPriceFormat($calculatedTax21) : 0}}</td>
+                                    <td colspan="3"></td>
+                                    <td>{{__('messages.service_fee')}}({{ $split->serviceFeeRate() }}%)</td>
+                                    <td style="width: 20%;">{{getPriceFormat($split->serviceFee())}}</td>
+                                </tr>
+                                @endif
+                                @if($split->salesTaxRate() > 0)
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td>{{__('messages.tax')}} ({{ $split->salesTaxRate() }}%)</td>
+                                    <td style="width: 20%;">{{getPriceFormat($split->choresnapTax())}}</td>
                                 </tr>
                                 @endif
                                 <tr>
-                                    <td colspan="3"></td>   
-                                    <td >{{__('messages.total_amount')}}</span> </td>
-                                   
-                                    <td style="width: 20%;">{{!empty($subTotalWithTax) ? getPriceFormat($subTotalWithTax) : 0}}</td>
+                                    <td colspan="3"></td>
+                                    <td>{{__('messages.sub_total')}}</td>
+                                    <td style="width: 20%;">{{getPriceFormat($split->choresnapAmount())}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td>{{__('messages.total_amount')}}</td>
+                                    <td style="width: 20%;">{{getPriceFormat($split->total())}}</td>
                                 </tr>
                                 <!-- <tr>
                                     <td colspan="3"></td>   
